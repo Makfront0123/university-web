@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,15 +29,18 @@ public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id;  
 
-    @Column(nullable = false, unique = true)
-    private String name;
+    @Column(nullable = false, length = 100)
+    private String name;  
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, length = 100)
+    private String lastName;  
+
+    @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "is_verified", nullable = false) 
     private boolean verified;
 
     @CreationTimestamp
@@ -46,12 +50,11 @@ public class UserEntity {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String password;
 
-   
-    @ManyToOne
-    @JoinColumn(name = "roleId", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private RoleEntity role;
 
     private LocalDateTime otpExpiration;
