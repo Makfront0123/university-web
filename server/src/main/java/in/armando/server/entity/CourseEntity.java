@@ -40,5 +40,5 @@ public class CourseEntity {
     private String classRoom;
 
     @Column(nullable = false, unique = true)
-    private String capacity;
+    private Integer capacity;
 }
