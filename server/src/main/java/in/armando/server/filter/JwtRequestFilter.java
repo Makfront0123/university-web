@@ -1,7 +1,6 @@
 package in.armando.server.filter;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,16 +41,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        List<String> publicPaths = List.of(
-                "/login", "/encode", "/register", "/verify",
-                "/resend-otp", "/forgot", "/verifyForgot",
-                "/reset-password", "/test-auth");
-
-        if (publicPaths.contains(path)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
+       
         final String authHeader = request.getHeader("Authorization");
 
         String email = null;

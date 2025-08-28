@@ -3,6 +3,7 @@ package in.armando.server.controllers;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -12,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 import in.armando.server.entity.UserEntity;
 import in.armando.server.io.auth.AuthRequest;
 import in.armando.server.io.auth.AuthResponse;
+import in.armando.server.io.auth.OtpRequest;
 import in.armando.server.io.user.UserRequest;
 import in.armando.server.io.user.UserResponse;
 import in.armando.server.service.ActiveSessionService;
@@ -43,9 +44,13 @@ public class AuthController {
         return authService.register(request);
     }
 
-    @PostMapping("/verify-otp")
-    public UserResponse verifyOtp(@RequestParam String email, @RequestParam String otp) {
-        return authService.verifyOtp(email, otp);
+    @PostMapping("/verify")
+    public ResponseEntity<?> verifyOtp(@RequestBody OtpRequest request) {
+        try {
+            return ResponseEntity.ok(authService.verifyOtp(request.getEmail(), request.getOtp()));
+        } catch (Exception e) {
+            throw new Error(e);
+        }
     }
 
     @PostMapping("/resend-otp")
@@ -65,8 +70,8 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     public String resetPassword(@RequestParam String email,
-                                @RequestParam String password,
-                                @RequestParam String newPassword) {
+            @RequestParam String password,
+            @RequestParam String newPassword) {
         return authService.resetPassword(email, password, newPassword);
     }
 
@@ -123,3 +128,4 @@ public class AuthController {
         return passwordEncoder.encode(request.get("password"));
     }
 }
+ 

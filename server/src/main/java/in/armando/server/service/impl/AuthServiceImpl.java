@@ -12,12 +12,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 import in.armando.server.entity.RoleEntity;
 import in.armando.server.entity.UserEntity;
+import in.armando.server.io.professors.ProfessorRequest;
+import in.armando.server.io.students.StudentsRequest;
 import in.armando.server.io.user.UserRequest;
 import in.armando.server.io.user.UserResponse;
 import in.armando.server.repository.RoleRepository;
 import in.armando.server.repository.UserRepository;
 import in.armando.server.service.ActiveSessionService;
 import in.armando.server.service.EmailService;
+import in.armando.server.service.ProfessorService;
+import in.armando.server.service.StudentsService;
 import in.armando.server.service.TokenBlacklistService;
 import in.armando.server.service.user.AuthService;
 import in.armando.server.utils.JwtUtil;
@@ -31,11 +35,13 @@ public class AuthServiceImpl implements AuthService {
     private final TokenBlacklistService tokenBlacklistService;
     private final ActiveSessionService activeSessionService;
     private final RoleRepository roleRepository;
+    private final StudentsService studentService;
+    private final ProfessorService professorService;
     final JwtUtil jwtUtil;
 
     final EmailService emailService;
 
-     @Override
+    @Override
     public UserResponse register(UserRequest request) {
         UserEntity newUser = convertToEntity(request);
 
@@ -52,18 +58,16 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private UserEntity convertToEntity(UserRequest request) {
+        RoleEntity roleEntity = roleRepository.findById(request.getRole())
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado con id: " + request.getRole()));
+
         return UserEntity.builder()
                 .name(request.getName().trim())
                 .lastName(request.getLastName().trim())
                 .email(request.getEmail().trim())
                 .password(passwordEncoder.encode(request.getPassword().trim()))
-                .role(defaultRole()) 
+                .role(roleEntity)
                 .build();
-    }
- 
-    private RoleEntity defaultRole() {
-        return roleRepository.findByName("STUDENTS")
-                .orElseThrow(() -> new RuntimeException("Default role STUDENTS not found"));
     }
 
     private UserResponse convertToResponse(UserEntity user) {
@@ -94,7 +98,6 @@ public class AuthServiceImpl implements AuthService {
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
-     
 
     @Override
     public void delete(String userId) {
@@ -115,20 +118,28 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UserResponse verifyOtp(String email, String otp) {
         UserEntity user = repository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
         if (user.getOtp() == null || !user.getOtp().equals(otp)) {
-            throw new RuntimeException("Código OTP inválido o ya usado");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Código OTP inválido o ya usado");
         }
-
         if (user.getOtpExpiration().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("El OTP ha expirado");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El OTP ha expirado");
         }
-
+ 
         user.setVerified(true);
         user.setOtp(null);
         user.setOtpExpiration(null);
         repository.save(user);
+        if ("STUDENTS".equals(user.getRole().getName())) {
+            StudentsRequest studentRequest = new StudentsRequest();
+            studentRequest.setUserId(user.getId());
+            studentService.createStudent(studentRequest);
+        } else if ("TEACHERS".equals(user.getRole().getName())) {
+            ProfessorRequest professorRequest = new ProfessorRequest();
+            professorRequest.setUserId(user.getId());
+            professorService.createProfessor(professorRequest);
+        }
 
         return convertToResponse(user);
     }
