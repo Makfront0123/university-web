@@ -78,12 +78,16 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponse login(@RequestBody AuthRequest request) {
         try {
-            authenticate(request.getEmail(), request.getPassword());
-
+            // 1. Buscar al usuario en BD
             final UserEntity user = authService.getUserByEmail(request.getEmail());
+
+            // 2. Si no está verificado, detener el flujo ANTES de autenticar
             if (!user.isVerified()) {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not verified");
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Esta cuenta no está verificada");
             }
+
+            // 3. Autenticación normal
+            authenticate(request.getEmail(), request.getPassword());
 
             final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
 
@@ -128,4 +132,3 @@ public class AuthController {
         return passwordEncoder.encode(request.get("password"));
     }
 }
- 

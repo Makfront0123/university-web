@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,15 +33,14 @@ public class StudentEntity {
     @Column(nullable = false, unique = true)
     private String code;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private UserEntity user;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
     @UpdateTimestamp
-    @Column(updatable = false)
     private LocalDateTime updatedAt;
-
-    @OneToOne
-    @JoinColumn(name = "userId", referencedColumnName = "id")
-    private UserEntity user;
-
 }

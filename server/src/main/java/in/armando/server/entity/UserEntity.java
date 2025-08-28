@@ -29,18 +29,18 @@ public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  
+    private Long id;
 
     @Column(nullable = false, length = 100)
-    private String name;  
+    private String name;
 
     @Column(nullable = false, length = 100)
-    private String lastName;  
+    private String lastName;
 
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    @Column(name = "is_verified", nullable = false) 
+    @Column(name = "is_verified", nullable = false)
     private boolean verified;
 
     @CreationTimestamp
@@ -53,7 +53,7 @@ public class UserEntity {
     @Column(nullable = false, length = 255)
     private String password;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private RoleEntity role;
 

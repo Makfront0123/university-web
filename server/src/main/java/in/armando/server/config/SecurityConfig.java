@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -55,20 +56,22 @@ public class SecurityConfig {
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .csrf(AbstractHttpConfigurer::disable)
                                 .authorizeHttpRequests(auth -> auth
-
-                                                .requestMatchers("/login", "/encode", "/register", "/verify",
-                                                                "/resend-otp", "/forgot", "/verifyForgot",
-                                                                "/reset-password", "/test-auth", "/debug-user",
-                                                                "/error")
-                                                .hasAnyRole("STUDENTS", "TEACHERS", "ADMIN")
-
-                                                .requestMatchers("/students/**").hasRole("STUDENTS")
-
-                                                .requestMatchers("/professors/**").hasRole("TEACHERS")
-
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
+                                                .requestMatchers(HttpMethod.GET, "/students")
+                                                .hasAnyRole("ADMIN", "TEACHERS")
+                                                .requestMatchers(HttpMethod.GET, "/students/{id}",
+                                                                "/students/code/{code}", "/students/{id}/user")
+                                                .hasAnyRole("ADMIN", "TEACHERS", "STUDENTS")
+                                                .requestMatchers(HttpMethod.POST, "/students").hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.PUT, "/students/{id}")
+                                                .hasAnyRole("ADMIN", "STUDENTS")
+                                                .requestMatchers(HttpMethod.DELETE, "/students/{id}").hasRole("ADMIN")
+
+                                                .requestMatchers("/teachers/**").hasAnyRole("ADMIN", "TEACHERS")
+
                                                 .anyRequest().authenticated())
+
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);

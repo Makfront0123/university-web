@@ -126,7 +126,7 @@ public class AuthServiceImpl implements AuthService {
         if (user.getOtpExpiration().isBefore(LocalDateTime.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El OTP ha expirado");
         }
- 
+
         user.setVerified(true);
         user.setOtp(null);
         user.setOtpExpiration(null);
@@ -146,8 +146,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserEntity getUserByEmail(String email) {
-        return repository.findByEmail(email).orElseThrow(
-                () -> new RuntimeException("User not found"));
+        return repository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Usuario no encontrado con email: " + email));
     }
 
     @Override
