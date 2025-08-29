@@ -57,7 +57,7 @@ public class SecurityConfig {
                                 .csrf(AbstractHttpConfigurer::disable)
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")
-
+                                                // STUDENTS
                                                 .requestMatchers(HttpMethod.GET, "/students")
                                                 .hasAnyRole("ADMIN", "TEACHERS")
                                                 .requestMatchers(HttpMethod.GET, "/students/{id}",
@@ -69,6 +69,41 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.DELETE, "/students/{id}").hasRole("ADMIN")
 
                                                 .requestMatchers("/teachers/**").hasAnyRole("ADMIN", "TEACHERS")
+
+                                                // TRANSCRIPT
+                                                .requestMatchers("/transcript/**").hasAnyRole("ADMIN", "TEACHERS")
+                                                // ENROLLMENT
+                                                .requestMatchers("/enrollment/**").hasAnyRole("ADMIN", "TEACHERS")
+
+                                                // SHIFT
+                                                .requestMatchers("/shift/**").hasAnyRole("ADMIN", "TEACHERS")
+
+                                                // SEMESTER
+                                                .requestMatchers(HttpMethod.GET, "/semester", "/semester/{id}")
+                                                .hasAnyRole("ADMIN", "TEACHERS", "STUDENTS")
+
+                                                .requestMatchers(HttpMethod.POST, "/semester")
+                                                .hasRole("ADMIN")
+
+                                                .requestMatchers(HttpMethod.PUT, "/semester/{id}")
+                                                .hasRole("ADMIN")
+
+                                                .requestMatchers(HttpMethod.DELETE, "/semester/{id}")
+                                                .hasRole("ADMIN")
+
+                                                // COURSE
+                                                .requestMatchers(HttpMethod.GET, "/courses", "/courses/{id}",
+                                                                "/courses/code/{code}")
+                                                .hasAnyRole("ADMIN", "TEACHERS", "STUDENTS")
+
+                                                .requestMatchers(HttpMethod.POST, "/courses")
+                                                .hasRole("ADMIN")
+
+                                                .requestMatchers(HttpMethod.PUT, "/courses/{id}")
+                                                .hasRole("ADMIN")
+
+                                                .requestMatchers(HttpMethod.DELETE, "/courses/{id}")
+                                                .hasRole("ADMIN")
 
                                                 .anyRequest().authenticated())
 

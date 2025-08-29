@@ -6,6 +6,6 @@ import lombok.Data;
 public class EnrollmentRequest {
     private Long courseId;
     private Long studentId;
-    private Integer grade;
+    private Double grade;
     private String status;
 }

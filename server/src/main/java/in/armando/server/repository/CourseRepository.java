@@ -1,15 +1,19 @@
 package in.armando.server.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import in.armando.server.entity.CourseEntity;
 
 public interface CourseRepository extends JpaRepository<CourseEntity, Long> {
-    CourseEntity findByClassRoom(String classRoom);
+    Optional<CourseEntity> findByClassRoom(String classRoom);
 
-    CourseEntity findBySubjectId(Long subjectId);
+    Optional<CourseEntity> findBySubjectId(Long id);
 
-    CourseEntity findBySemesterId(Long semesterId);
+    Optional<CourseEntity> findBySemesterId(Long id);
 
-    CourseEntity findByShiftId(Long shiftId);
+    Optional<CourseEntity> findByShiftId(Long id);
+
+    Optional<CourseEntity> findByProfessorId(Long id);
 }

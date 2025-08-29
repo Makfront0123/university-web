@@ -1,5 +1,6 @@
 package in.armando.server.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -17,29 +18,25 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "enrollments")
-@Builder
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class EnrollmentEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "courseId", referencedColumnName = "id")
-    private CourseEntity courseId;
+    @JoinColumn(name = "course_id", nullable = false)
+    private CourseEntity course;
 
     @ManyToOne
-    @JoinColumn(name = "studentId", referencedColumnName = "id")
-    private StudentEntity studentId;
+    @JoinColumn(name = "student_id", nullable = false)
+    private StudentEntity student;
 
-    @Column(nullable = false, unique = true)
-    private LocalDateTime enrollmentDate;
-
-    @Column(nullable = false, unique = true)
-    private Integer grade;
-
-    @Column(nullable = false, unique = true)
+    private LocalDate enrollmentDate;
+    private Double grade;
     private String status;
 }
