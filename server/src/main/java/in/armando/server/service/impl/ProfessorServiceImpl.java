@@ -9,7 +9,7 @@ import in.armando.server.entity.UserEntity;
 import in.armando.server.io.professors.ProfessorRequest;
 import in.armando.server.io.professors.ProfessorResponse;
 import in.armando.server.io.user.UserResponse;
-import in.armando.server.repository.ProfessorRepositoty;
+import in.armando.server.repository.ProfessorRepository;
 import in.armando.server.repository.UserRepository;
 import in.armando.server.service.ProfessorService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProfessorServiceImpl implements ProfessorService {
 
-    private final ProfessorRepositoty professorRepository;
+    private final ProfessorRepository professorRepository;
     private final UserRepository userRepository;
 
     @Override

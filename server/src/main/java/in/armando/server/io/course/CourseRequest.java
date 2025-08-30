@@ -6,4 +6,9 @@ import lombok.Data;
 public class CourseRequest {
     private String classRoom;
     private Integer capacity;
+
+    private Long subjectId;
+    private Long semesterId;
+    private Long shiftId;
+    private Long professorId;
 }

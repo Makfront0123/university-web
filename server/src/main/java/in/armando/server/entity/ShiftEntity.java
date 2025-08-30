@@ -1,6 +1,7 @@
 package in.armando.server.entity;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -30,19 +31,18 @@ public class ShiftEntity {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false, unique = true)
-    private LocalDateTime startTime;
+    @Column(nullable = false)
+    private LocalTime startTime;
 
-    @Column(nullable = false, unique = true)
-    private LocalDateTime endTime;
-
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
+    private LocalTime endTime;
+    @Column(nullable = true)
     private String dayOfWeek;
 
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
     @UpdateTimestamp
-    @Column(updatable = false)
     private LocalDateTime updatedAt;
 }

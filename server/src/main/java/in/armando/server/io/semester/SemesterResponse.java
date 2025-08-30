@@ -14,4 +14,5 @@ public class SemesterResponse {
     private String name;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private String message;
 }

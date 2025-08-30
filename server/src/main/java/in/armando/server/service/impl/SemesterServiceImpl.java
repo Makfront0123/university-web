@@ -17,22 +17,33 @@ public class SemesterServiceImpl implements SemesterService {
     private final SemesterRepository semesterRepository;
 
     private SemesterResponse mapToResponse(SemesterEntity semester) {
+        return mapToResponse(semester, null);
+    }
+
+    private SemesterResponse mapToResponse(SemesterEntity semester, String message) {
         return new SemesterResponse(
                 semester.getId(),
                 semester.getName(),
                 semester.getStartDate(),
-                semester.getEndDate());
+                semester.getEndDate(),
+                message);
     }
 
-    @Override
-    public SemesterResponse createSemester(SemesterRequest semesterRequest) {
-        SemesterEntity semesterEntity = SemesterEntity.builder()
+    private SemesterEntity mapToEntity(SemesterRequest semesterRequest) {
+        return SemesterEntity.builder()
                 .name(semesterRequest.getName())
                 .startDate(semesterRequest.getStartDate())
                 .endDate(semesterRequest.getEndDate())
                 .build();
-        semesterRepository.save(semesterEntity);
-        return mapToResponse(semesterEntity);
+    }
+
+    @Override
+    public SemesterResponse createSemester(SemesterRequest semesterRequest) {
+        SemesterEntity semester = mapToEntity(semesterRequest);
+        SemesterEntity savedSemester = semesterRepository.save(semester);  
+        SemesterResponse response = mapToResponse(savedSemester);
+        response.setMessage("Semestre creado correctamente");
+        return response;
     }
 
     @Override
@@ -46,16 +57,30 @@ public class SemesterServiceImpl implements SemesterService {
     public SemesterResponse updateSemester(Long id, SemesterRequest semesterRequest) {
         SemesterEntity semester = semesterRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Semester no encontrado con id: " + id));
-        semester.setName(semesterRequest.getName());
-        semester.setStartDate(semesterRequest.getStartDate());
-        semester.setEndDate(semesterRequest.getEndDate());
+
+        if (semesterRequest.getName() != null) {
+            semester.setName(semesterRequest.getName());
+        }
+        if (semesterRequest.getStartDate() != null) {
+            semester.setStartDate(semesterRequest.getStartDate());
+        }
+        if (semesterRequest.getEndDate() != null) {
+            semester.setEndDate(semesterRequest.getEndDate());
+        }
+
         semesterRepository.save(semester);
-        return mapToResponse(semester);
+
+        SemesterResponse response = mapToResponse(semester);
+        response.setMessage("Semestre actualizado correctamente");
+        return response;
     }
 
     @Override
-    public void deleteSemester(Long id) {
+    public SemesterResponse deleteSemester(Long id) {
+        SemesterResponse response = getSemesterById(id);
         semesterRepository.deleteById(id);
+        response.setMessage("Semestre eliminado correctamente");
+        return response;
     }
 
     @Override
