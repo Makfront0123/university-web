@@ -8,13 +8,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "courses")
 @Builder
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CourseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,9 +40,10 @@ public class CourseEntity {
     @JoinColumn(name = "professorId", referencedColumnName = "id")
     private ProfessorEntity professor;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String classRoom;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private Integer capacity;
+
 }

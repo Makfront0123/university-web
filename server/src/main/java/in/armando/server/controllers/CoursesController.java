@@ -2,20 +2,24 @@ package in.armando.server.controllers;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
- 
+
 import in.armando.server.io.course.CourseRequest;
 import in.armando.server.io.course.CourseResponse;
 import in.armando.server.service.CourseService;
 import lombok.RequiredArgsConstructor;
- 
+
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
- 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
 @RestController
 @RequestMapping("/courses")
 @RequiredArgsConstructor
@@ -29,7 +33,7 @@ public class CoursesController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<CourseResponse> updateCourse(
             @PathVariable Long id,
             @RequestBody CourseRequest request) {
@@ -40,5 +44,15 @@ public class CoursesController {
     public ResponseEntity<Void> deleteCourse(@PathVariable Long id) {
         courseService.deleteCourse(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public List<CourseResponse> getAllCourses() {
+        return courseService.getAllCourses();
+    }
+
+    @GetMapping("/{id}")
+    public CourseResponse getCourseById(@PathVariable Long id) {
+        return courseService.getCourseById(id);
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import in.armando.server.entity.RoleEntity;
 import in.armando.server.entity.UserEntity;
+import in.armando.server.io.role.RoleResponse;
 import in.armando.server.io.user.UserRequest;
 import in.armando.server.io.user.UserResponse;
 import in.armando.server.repository.RoleRepository;
@@ -59,7 +60,11 @@ public class UserServiceImpl implements UserService {
         response.setName(entity.getName());
         response.setEmail(entity.getEmail());
         response.setVerified(entity.isVerified());
-        response.setRole(entity.getRole().getName());
+        response.setRole(
+                RoleResponse.builder()
+                        .id(entity.getRole().getId())
+                        .name(entity.getRole().getName())
+                        .build());
         response.setCreatedAt(entity.getCreatedAt());
         response.setUpdatedAt(entity.getUpdatedAt());
         return response;

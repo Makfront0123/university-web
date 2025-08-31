@@ -21,4 +21,5 @@ public class CourseResponse {
     private SemesterResponse semester;
     private ShiftResponse shift;
     private ProfessorResponse professor;
+    private String message;
 }

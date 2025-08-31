@@ -8,6 +8,7 @@ import in.armando.server.entity.ProfessorEntity;
 import in.armando.server.entity.UserEntity;
 import in.armando.server.io.professors.ProfessorRequest;
 import in.armando.server.io.professors.ProfessorResponse;
+import in.armando.server.io.role.RoleResponse;
 import in.armando.server.io.user.UserResponse;
 import in.armando.server.repository.ProfessorRepository;
 import in.armando.server.repository.UserRepository;
@@ -103,7 +104,11 @@ public class ProfessorServiceImpl implements ProfessorService {
         response.setName(user.getName());
         response.setEmail(user.getEmail());
         response.setVerified(user.isVerified());
-        response.setRole(user.getRole().getName());
+        response.setRole(
+                RoleResponse.builder()
+                        .id(user.getRole().getId())
+                        .name(user.getRole().getName())
+                        .build());
         response.setCreatedAt(user.getCreatedAt());
         response.setUpdatedAt(user.getUpdatedAt());
         return response;

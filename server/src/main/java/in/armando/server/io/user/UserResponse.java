@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import in.armando.server.io.role.RoleResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +20,7 @@ public class UserResponse {
     private String name;
     private String lastName;
     private String email;
-    private String role;
+    private RoleResponse role;
     private boolean verified;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -81,7 +81,7 @@ public class SecurityConfig {
 
                                                 .requestMatchers(HttpMethod.POST, "/shifts").hasRole("ADMIN")
 
-                                                .requestMatchers(HttpMethod.PUT, "/shifts/{id}").hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.PATCH, "/shifts/{id}").hasRole("ADMIN")
 
                                                 .requestMatchers(HttpMethod.DELETE, "/shifts/{id}").hasRole("ADMIN")
 
@@ -92,7 +92,7 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.POST, "/semester")
                                                 .hasRole("ADMIN")
 
-                                                .requestMatchers(HttpMethod.PUT, "/semester/{id}")
+                                                .requestMatchers(HttpMethod.PATCH, "/semester/{id}")
                                                 .hasRole("ADMIN")
 
                                                 .requestMatchers(HttpMethod.DELETE, "/semester/{id}")
@@ -106,10 +106,23 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.POST, "/courses")
                                                 .hasRole("ADMIN")
 
-                                                .requestMatchers(HttpMethod.PUT, "/courses/{id}")
+                                                .requestMatchers(HttpMethod.PATCH, "/courses/{id}")
                                                 .hasRole("ADMIN")
 
                                                 .requestMatchers(HttpMethod.DELETE, "/courses/{id}")
+                                                .hasRole("ADMIN")
+
+                                                // Subject
+                                                .requestMatchers(HttpMethod.GET, "/subjects")
+                                                .hasAnyRole("ADMIN", "TEACHERS", "STUDENTS")
+
+                                                .requestMatchers(HttpMethod.POST, "/subjects")
+                                                .hasRole("ADMIN")
+
+                                                .requestMatchers(HttpMethod.PATCH, "/subjects/{id}")
+                                                .hasRole("ADMIN")
+
+                                                .requestMatchers(HttpMethod.DELETE, "/subjects/{id}")
                                                 .hasRole("ADMIN")
 
                                                 .anyRequest().authenticated())

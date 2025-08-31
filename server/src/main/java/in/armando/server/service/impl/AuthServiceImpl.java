@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import in.armando.server.entity.RoleEntity;
 import in.armando.server.entity.UserEntity;
 import in.armando.server.io.professors.ProfessorRequest;
+import in.armando.server.io.role.RoleResponse;
 import in.armando.server.io.students.StudentsRequest;
 import in.armando.server.io.user.UserRequest;
 import in.armando.server.io.user.UserResponse;
@@ -76,7 +77,10 @@ public class AuthServiceImpl implements AuthService {
                 .name(user.getName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
-                .role(user.getRole().getName())
+                .role(RoleResponse.builder()
+                        .id(user.getRole().getId())
+                        .name(user.getRole().getName())
+                        .build())
                 .verified(user.isVerified())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())

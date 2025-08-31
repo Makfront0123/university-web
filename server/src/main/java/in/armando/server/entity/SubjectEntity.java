@@ -34,7 +34,7 @@ public class SubjectEntity {
     private String code;
 
     @Column(nullable = false)
-    private String credits;
+    private Integer credits;
 
     @CreationTimestamp
     @Column(updatable = false)

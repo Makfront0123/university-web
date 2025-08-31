@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import in.armando.server.entity.StudentEntity;
 import in.armando.server.entity.UserEntity;
+import in.armando.server.io.role.RoleResponse;
 import in.armando.server.io.students.StudentsRequest;
 import in.armando.server.io.students.StudentsResponse;
 import in.armando.server.io.user.UserResponse;
@@ -36,7 +37,11 @@ public class StudentServiceImpl implements StudentsService {
         response.setName(user.getName());
         response.setEmail(user.getEmail());
         response.setVerified(user.isVerified());
-        response.setRole(user.getRole().getName());
+        response.setRole(
+                RoleResponse.builder()
+                        .id(user.getRole().getId())
+                        .name(user.getRole().getName())
+                        .build());
         response.setCreatedAt(user.getCreatedAt());
         response.setUpdatedAt(user.getUpdatedAt());
         return response;
@@ -89,14 +94,12 @@ public class StudentServiceImpl implements StudentsService {
         StudentEntity student = studentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
 
- 
         if (request.getCode() != null && !request.getCode().isBlank()) {
             student.setCode(request.getCode());
         }
 
-     
         UserEntity user = student.getUser();
- 
+
         if (request.getUser() != null) {
             if (request.getUser().getName() != null)
                 user.setName(request.getUser().getName());
@@ -106,7 +109,6 @@ public class StudentServiceImpl implements StudentsService {
                 user.setEmail(request.getUser().getEmail());
         }
 
-   
         if (request.getName() != null)
             user.setName(request.getName());
         if (request.getLastName() != null)
