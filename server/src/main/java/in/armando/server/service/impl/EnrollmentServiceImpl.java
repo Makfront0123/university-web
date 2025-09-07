@@ -1,5 +1,6 @@
 package in.armando.server.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -60,8 +61,16 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     @Override
-    public void deleteEnrollment(Long id) {
-        enrollmentRepository.deleteById(id);
+    public EnrollmentResponse deleteEnrollment(Long id) {
+        EnrollmentEntity enrollment = enrollmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Enrollment not found"));
+
+        enrollmentRepository.delete(enrollment);
+
+        EnrollmentResponse response = new EnrollmentResponse();
+        response.setMessage("Matrícula eliminada correctamente 🗑️");
+        response.setId(id);
+        return response;
     }
 
     @Override
@@ -69,12 +78,18 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         EnrollmentEntity enrollmentEntity = enrollmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Enrollment not found"));
 
-        enrollmentEntity.setGrade(enrollment.getGrade());
-        enrollmentEntity.setStatus(enrollment.getStatus());
+        if (enrollment.getGrade() != null) {
+            enrollmentEntity.setGrade(enrollment.getGrade());
+        }
+        if (enrollment.getStatus() != null) {
+            enrollmentEntity.setStatus(enrollment.getStatus());
+        }
 
         EnrollmentEntity updated = enrollmentRepository.save(enrollmentEntity);
 
-        return mapToResponse(updated);
+        EnrollmentResponse response = mapToResponse(updated);
+        response.setMessage("Matrícula actualizada correctamente ✏️");
+        return response;
     }
 
     @Override
@@ -96,14 +111,16 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         EnrollmentEntity enrollmentEntity = EnrollmentEntity.builder()
                 .course(course)
                 .student(student)
-                .enrollmentDate(enrollment.getEnrollmentDate())
+                .enrollmentDate(LocalDate.now())
                 .grade(enrollment.getGrade())
                 .status(enrollment.getStatus())
                 .build();
 
         EnrollmentEntity saved = enrollmentRepository.save(enrollmentEntity);
 
-        return mapToResponse(saved);
+        EnrollmentResponse response = mapToResponse(saved);
+        response.setMessage("Se ha inscrito correctamente ✅");
+        return response;
     }
 
 }

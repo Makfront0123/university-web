@@ -2,8 +2,10 @@ package in.armando.server.controllers;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -42,13 +44,15 @@ public class EnrollmentController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteEnrollment(@PathVariable Long id) {
-        enrollmentService.deleteEnrollment(id);
+    public ResponseEntity<EnrollmentResponse> deleteEnrollment(@PathVariable Long id) {
+        return ResponseEntity.ok(enrollmentService.deleteEnrollment(id));
     }
 
-    @PutMapping("/{id}")
-    public EnrollmentResponse updateEnrollment(@PathVariable Long id, @RequestBody EnrollmentResponse enrollment) {
-        return enrollmentService.updateEnrollment(id, enrollment);
+    @PatchMapping("/{id}")
+    public ResponseEntity<EnrollmentResponse> updateEnrollment(
+            @PathVariable Long id,
+            @RequestBody EnrollmentResponse enrollment) {
+        return ResponseEntity.ok(enrollmentService.updateEnrollment(id, enrollment));
     }
 
     @GetMapping

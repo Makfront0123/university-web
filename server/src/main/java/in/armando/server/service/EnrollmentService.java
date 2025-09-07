@@ -13,7 +13,7 @@ public interface EnrollmentService {
 
     EnrollmentResponse getEnrollmentByStudentId(Long studentId);
 
-    void deleteEnrollment(Long id);
+    EnrollmentResponse deleteEnrollment(Long id);
 
     EnrollmentResponse updateEnrollment(Long id, EnrollmentResponse enrollment);
 
