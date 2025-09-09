@@ -3,6 +3,7 @@ package in.armando.server.service;
 import in.armando.server.io.transcript.TranscriptRequest;
 import in.armando.server.io.transcript.TranscriptResponse;
 
+
 public interface TranscriptService {
     TranscriptResponse createTranscript(TranscriptRequest transcript);
 

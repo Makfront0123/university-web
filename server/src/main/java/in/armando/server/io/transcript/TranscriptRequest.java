@@ -7,4 +7,6 @@ public class TranscriptRequest {
     private Double promSem;
     private Double promTotal;
     private Integer earnedCredits;
+    private Long semesterId;
+    private Long studentId;
 }

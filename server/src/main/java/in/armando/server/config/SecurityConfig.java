@@ -140,6 +140,24 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/enrollments/**")
                                                 .hasAnyRole("ADMIN", "TEACHERS")
 
+                                                // TRANSCRIPT
+                                                .requestMatchers(HttpMethod.POST, "/transcripts").hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/transcripts/student/{studentId}")
+                                                .hasAnyRole("ADMIN", "TEACHERS", "STUDENTS")
+                                                .requestMatchers(HttpMethod.PATCH, "/transcripts/{id}")
+                                                .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.DELETE, "/transcripts/{id}")
+                                                .hasRole("ADMIN")
+
+                                                // PENSUM
+                                                .requestMatchers(HttpMethod.POST, "/pensum").hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/pensum")
+                                                .hasAnyRole("ADMIN", "TEACHERS", "STUDENTS")
+                                                .requestMatchers(HttpMethod.PATCH, "/pensum/{id}")
+                                                .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.DELETE, "/pensum/{id}")
+                                                .hasRole("ADMIN")
+
                                                 .anyRequest().authenticated())
 
                                 .sessionManagement(session -> session

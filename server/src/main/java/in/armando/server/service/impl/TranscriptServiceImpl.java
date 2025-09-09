@@ -1,39 +1,117 @@
 package in.armando.server.service.impl;
 
+import org.springframework.stereotype.Service;
+
+import in.armando.server.entity.SemesterEntity;
+import in.armando.server.entity.StudentEntity;
+import in.armando.server.entity.TranscriptEntity;
+import in.armando.server.entity.UserEntity;
+import in.armando.server.io.students.StudentsResponse;
 import in.armando.server.io.transcript.TranscriptRequest;
 import in.armando.server.io.transcript.TranscriptResponse;
+import in.armando.server.io.user.UserResponse;
+import in.armando.server.repository.SemesterRepository;
+import in.armando.server.repository.StudentRepository;
+import in.armando.server.repository.TranscriptRepository;
 import in.armando.server.service.TranscriptService;
+import lombok.RequiredArgsConstructor;
 
+@Service
+@RequiredArgsConstructor
 public class TranscriptServiceImpl implements TranscriptService {
 
+    private final TranscriptRepository transcriptRepository;
+    private final StudentRepository studentRepository;
+    private final SemesterRepository semesterRepository;
+
     @Override
-    public TranscriptResponse createTranscript(TranscriptRequest transcript) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createTranscript'");
+    public TranscriptResponse createTranscript(TranscriptRequest request) {
+        StudentEntity student = studentRepository.findById(request.getStudentId())
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        SemesterEntity semester = semesterRepository.findById(request.getSemesterId())
+                .orElseThrow(() -> new RuntimeException("Semester not found"));
+
+        Integer totalCredits = transcriptRepository
+                .findByStudentId(student.getId())
+                .stream()
+                .mapToInt(TranscriptEntity::getEarnedCredits)
+                .sum() + request.getEarnedCredits();
+
+        TranscriptEntity transcript = TranscriptEntity.builder()
+                .student(student)
+                .semester(semester)
+                .promSem(request.getPromSem())
+                .promTotal(request.getPromTotal())
+                .earnedCredits(request.getEarnedCredits())
+                .totalCredits(totalCredits)
+                .build();
+
+        return toResponse(transcriptRepository.save(transcript));
     }
 
     @Override
     public TranscriptResponse getTranscriptById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTranscriptById'");
+        return transcriptRepository.findById(id)
+                .map(this::toResponse)
+                .orElseThrow(() -> new RuntimeException("Transcript not found"));
     }
 
     @Override
     public TranscriptResponse getTranscriptByStudentId(Long studentId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTranscriptByStudentId'");
+        return transcriptRepository.findByStudentId(studentId)
+                .stream()
+                .findFirst()
+                .map(this::toResponse)
+                .orElseThrow(() -> new RuntimeException("Transcript not found"));
     }
 
     @Override
     public void deleteTranscript(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteTranscript'");
+        transcriptRepository.deleteById(id);
     }
 
     @Override
-    public TranscriptResponse updateTranscript(Long id, TranscriptRequest transcript) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateTranscript'");
+    public TranscriptResponse updateTranscript(Long id, TranscriptRequest request) {
+        TranscriptEntity transcript = transcriptRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Transcript not found"));
+
+        transcript.setPromSem(request.getPromSem());
+        transcript.setPromTotal(request.getPromTotal());
+        transcript.setEarnedCredits(request.getEarnedCredits());
+
+        return toResponse(transcriptRepository.save(transcript));
+    }
+
+    private TranscriptResponse toResponse(TranscriptEntity entity) {
+        TranscriptResponse response = new TranscriptResponse();
+        response.setId(entity.getId());
+        response.setPromSem(entity.getPromSem());
+        response.setPromTotal(entity.getPromTotal());
+        response.setEarnedCredits(entity.getEarnedCredits());
+        response.setTotalCredits(entity.getTotalCredits());
+
+        if (entity.getStudent() != null) {
+            StudentsResponse studentResponse = new StudentsResponse();
+            studentResponse.setUserId(entity.getStudent().getId());
+            studentResponse.setCode(entity.getStudent().getCode());
+
+            if (entity.getStudent().getUser() != null) {
+                UserEntity user = entity.getStudent().getUser();
+                UserResponse userResponse = new UserResponse();
+                userResponse.setId(user.getId());
+                userResponse.setEmail(user.getEmail());
+                userResponse.setName(user.getName());
+                userResponse.setLastName(user.getLastName());
+                userResponse.setVerified(user.isVerified());
+
+                studentResponse.setUser(userResponse);
+            }
+
+            response.setStudent(studentResponse);
+        }
+
+        return response;
     }
 
 }

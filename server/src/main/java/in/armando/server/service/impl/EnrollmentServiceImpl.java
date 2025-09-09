@@ -68,7 +68,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         enrollmentRepository.delete(enrollment);
 
         EnrollmentResponse response = new EnrollmentResponse();
-        response.setMessage("Matrícula eliminada correctamente 🗑️");
+        response.setMessage("Matrícula eliminada correctamente");
         response.setId(id);
         return response;
     }
@@ -88,7 +88,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         EnrollmentEntity updated = enrollmentRepository.save(enrollmentEntity);
 
         EnrollmentResponse response = mapToResponse(updated);
-        response.setMessage("Matrícula actualizada correctamente ✏️");
+        response.setMessage("Matrícula actualizada correctamente");
         return response;
     }
 
@@ -119,7 +119,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         EnrollmentEntity saved = enrollmentRepository.save(enrollmentEntity);
 
         EnrollmentResponse response = mapToResponse(saved);
-        response.setMessage("Se ha inscrito correctamente ✅");
+        response.setMessage("Se ha inscrito correctamente");
         return response;
     }
 

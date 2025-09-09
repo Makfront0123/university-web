@@ -10,9 +10,9 @@ import in.armando.server.entity.TranscriptEntity;
 
 public interface TranscriptRepository extends JpaRepository<TranscriptEntity, Long> {
 
-    Optional<TranscriptEntity> findByStudent_Id(Long studentId);
+    Optional<TranscriptEntity> findByStudentId(Long studentId);
 
-    Optional<TranscriptEntity> findBySemester_Id(Long semesterId);
+    Optional<TranscriptEntity> findBySemesterId(Long semesterId);
 
     Optional<TranscriptEntity> findByStudentAndSemester(StudentEntity student, SemesterEntity semester);
 }
