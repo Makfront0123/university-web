@@ -32,8 +32,12 @@ public class PensumServiceImpl implements PensumService {
         PensumEntity entity = pensumRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pensum not found"));
 
-        entity.setName(request.getName());
-        entity.setDescription(request.getDescription());
+        if (request.getName() != null) {
+            entity.setName(request.getName());
+        }
+        if (request.getDescription() != null) {
+            entity.setDescription(request.getDescription());
+        }
 
         return toResponse(pensumRepository.save(entity));
     }
@@ -65,8 +69,7 @@ public class PensumServiceImpl implements PensumService {
                 .id(entity.getId())
                 .name(entity.getName())
                 .description(entity.getDescription())
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
+
                 .build();
     }
 }
