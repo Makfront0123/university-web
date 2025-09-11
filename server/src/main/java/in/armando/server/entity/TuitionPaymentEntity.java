@@ -28,18 +28,18 @@ public class TuitionPaymentEntity {
 
     @ManyToOne
     @JoinColumn(name = "studentId", referencedColumnName = "id")
-    private StudentEntity studentId;
+    private StudentEntity student;
 
     @ManyToOne
     @JoinColumn(name = "semesterId", referencedColumnName = "id")
-    private SemesterEntity semesterId;
+    private SemesterEntity semester;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private Double tuition;
 
-    @Column(nullable = false, unique = true)
-    private String status;
+    @Column(nullable = false)
+    private String status; 
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private LocalDateTime paymentDate;
 }
