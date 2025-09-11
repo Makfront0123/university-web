@@ -158,6 +158,25 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.DELETE, "/pensum/{id}")
                                                 .hasRole("ADMIN")
 
+                                                // PENSUM SUBEJCT
+                                                .requestMatchers(HttpMethod.POST, "/pensum-subject")
+                                                .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/pensum-subject")
+                                                .hasAnyRole("ADMIN", "TEACHERS", "STUDENTS")
+                                                .requestMatchers(HttpMethod.PATCH, "/pensum-subject/{id}")
+                                                .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.DELETE, "/pensum-subject/{id}")
+                                                .hasRole("ADMIN")
+
+                                                // WAITLIST
+                                                .requestMatchers(HttpMethod.POST, "/waitlist").hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/waitlist")
+                                                .hasAnyRole("ADMIN", "TEACHERS", "STUDENTS")
+                                                .requestMatchers(HttpMethod.PATCH, "/waitlist/{id}")
+                                                .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.DELETE, "/waitlist/{id}")
+                                                .hasRole("ADMIN")
+
                                                 .anyRequest().authenticated())
 
                                 .sessionManagement(session -> session
