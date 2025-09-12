@@ -36,14 +36,12 @@ public class PensumStudentServiceImpl implements PensumStudentService {
                 .orElseThrow(() -> new RuntimeException("TuitionPayment not found"));
 
         PensumStudentEntity entity = PensumStudentEntity.builder()
-        .student(student)
-        .pensum(pensum)
-        .assignedBy(assignedBy)
-        .createdAt(LocalDateTime.now())
-        .updatedAt(LocalDateTime.now())
-        .build();
-
-        
+                .student(student)
+                .pensum(pensum)
+                .assignedBy(assignedBy)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
 
         entity = repository.save(entity);
 

@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import in.armando.server.entity.PensumStudentEntity;
 import in.armando.server.io.pensumStudent.PensumStudentRequest;
 import in.armando.server.io.pensumStudent.PensumStudentResponse;
 import in.armando.server.service.PensumStudentService;

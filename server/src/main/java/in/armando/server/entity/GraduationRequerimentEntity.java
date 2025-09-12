@@ -12,31 +12,30 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+ 
 @Entity
 @Table(name = "graduation_reqquirement")
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GraduationReqquirementEntity {
+public class GraduationRequerimentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false, unique = true)
     private String description;
 
-    @Column(nullable = false, unique = true)
-    private String requiredCredits;
+    private Integer requiredCredits;
 
-    @Column(nullable = false, unique = true)
-    private String mandatoryCredits;
+    private Boolean mandatory;
+
+    @Column(name = "mandatory_credits", nullable = false)
+    private Integer mandatoryCredits;  
 
     @ManyToOne
-    @JoinColumn(name = "pensumId", referencedColumnName = "id")
-    private PensumEntity pensumId;
+    @JoinColumn(name = "pensum_id", nullable = false)
+    private PensumEntity pensum;
 }
