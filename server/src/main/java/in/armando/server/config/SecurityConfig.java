@@ -177,6 +177,15 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.DELETE, "/waitlist/{id}")
                                                 .hasRole("ADMIN")
 
+                                                // TUITION PAYMENT
+                                                .requestMatchers(HttpMethod.POST, "/tuitionPayment").hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/tuitionPayment")
+                                                .hasAnyRole("ADMIN", "TEACHERS", "STUDENTS")
+                                                .requestMatchers(HttpMethod.PATCH, "/tuitionPayment/{id}")
+                                                .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.DELETE, "/tuitionPayment/{id}")
+                                                .hasRole("ADMIN")
+
                                                 .anyRequest().authenticated())
 
                                 .sessionManagement(session -> session
