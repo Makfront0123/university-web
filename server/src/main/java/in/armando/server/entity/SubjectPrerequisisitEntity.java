@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubjectPrerequisisit {
+public class SubjectPrerequisisitEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

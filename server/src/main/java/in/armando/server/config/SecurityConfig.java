@@ -186,6 +186,36 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.DELETE, "/tuitionPayment/{id}")
                                                 .hasRole("ADMIN")
 
+                                                // SUBJECT EQUIVALENCE
+                                                .requestMatchers(HttpMethod.POST, "/subject-equivalence")
+                                                .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/subject-equivalence")
+                                                .hasAnyRole("ADMIN", "TEACHERS", "STUDENTS")
+                                                .requestMatchers(HttpMethod.PATCH, "/subject-equivalence/{id}")
+                                                .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.DELETE, "/subject-equivalence/{id}")
+                                                .hasRole("ADMIN")
+
+                                                // GRADUATION REQUEST
+                                                .requestMatchers(HttpMethod.POST, "/graduation-request")
+                                                .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/graduation-request")
+                                                .hasAnyRole("ADMIN", "TEACHERS", "STUDENTS")
+                                                .requestMatchers(HttpMethod.PATCH, "/graduation-request/{id}")
+                                                .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.DELETE, "/graduation-request/{id}")
+                                                .hasRole("ADMIN")
+
+                                                // SUBJECT PREREQUISIT
+                                                .requestMatchers(HttpMethod.POST, "/subject-prerequisit")
+                                                .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/subject-prerequisit")
+                                                .hasAnyRole("ADMIN", "TEACHERS", "STUDENTS")
+                                                .requestMatchers(HttpMethod.PATCH, "/subject-prerequisit/{id}")
+                                                .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.DELETE, "/subject-prerequisit/{id}")
+                                                .hasRole("ADMIN")
+
                                                 .anyRequest().authenticated())
 
                                 .sessionManagement(session -> session
