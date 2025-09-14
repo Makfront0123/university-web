@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.armando.server.io.ApiResponse;
 import in.armando.server.io.graduationRequeriment.GraduationRequerimentRequest;
 import in.armando.server.io.graduationRequeriment.GraduationRequerimentResponse;
 import in.armando.server.service.GraduationRequerimentService;
@@ -22,32 +23,39 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/graduation-requeriment")
 @RequiredArgsConstructor
 public class GraduationRequerimentController {
+
     private final GraduationRequerimentService service;
 
     @PostMapping
-    public ResponseEntity<GraduationRequerimentResponse> create(@RequestBody GraduationRequerimentRequest request) {
+    public ResponseEntity<ApiResponse<GraduationRequerimentResponse>> create(
+            @RequestBody GraduationRequerimentRequest request) {
         GraduationRequerimentResponse response = service.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>("Requerimiento de graduación creado exitosamente", response));
     }
 
     @GetMapping("/{id}")
-    public GraduationRequerimentResponse getById(@PathVariable Long id) {
-        return service.getById(id);
+    public ResponseEntity<ApiResponse<GraduationRequerimentResponse>> getById(@PathVariable Long id) {
+        GraduationRequerimentResponse response = service.getById(id);
+        return ResponseEntity.ok(new ApiResponse<>("Requerimiento de graduación encontrado", response));
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> delete(@PathVariable Long id) {
         service.delete(id);
+        return ResponseEntity.ok(new ApiResponse<>("Requerimiento de graduación eliminado", null));
     }
 
     @GetMapping
-    public List<GraduationRequerimentResponse> getAll() {
-        return service.getAll();
+    public ResponseEntity<ApiResponse<List<GraduationRequerimentResponse>>> getAll() {
+        List<GraduationRequerimentResponse> response = service.getAll();
+        return ResponseEntity.ok(new ApiResponse<>("Lista de requerimientos de graduación", response));
     }
 
     @PatchMapping("/{id}")
-    public GraduationRequerimentResponse update(@PathVariable Long id,
+    public ResponseEntity<ApiResponse<GraduationRequerimentResponse>> update(@PathVariable Long id,
             @RequestBody GraduationRequerimentRequest request) {
-        return service.update(id, request);
+        GraduationRequerimentResponse response = service.update(id, request);
+        return ResponseEntity.ok(new ApiResponse<>("Requerimiento de graduación actualizado", response));
     }
 }

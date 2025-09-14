@@ -1,5 +1,6 @@
 package in.armando.server.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.armando.server.io.ApiResponse;
 import in.armando.server.io.transcript.TranscriptRequest;
 import in.armando.server.io.transcript.TranscriptResponse;
 import in.armando.server.service.TranscriptService;
@@ -19,33 +21,39 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/transcripts")
 @RequiredArgsConstructor
 public class TranscriptController {
+
     private final TranscriptService transcriptService;
 
     @PostMapping
-    public ResponseEntity<TranscriptResponse> createTranscript(@RequestBody TranscriptRequest request) {
-        return ResponseEntity.ok(transcriptService.createTranscript(request));
+    public ResponseEntity<ApiResponse<TranscriptResponse>> createTranscript(@RequestBody TranscriptRequest request) {
+        TranscriptResponse response = transcriptService.createTranscript(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>("Historial académico creado exitosamente", response));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TranscriptResponse> getTranscriptById(@PathVariable Long id) {
-        return ResponseEntity.ok(transcriptService.getTranscriptById(id));
+    public ResponseEntity<ApiResponse<TranscriptResponse>> getTranscriptById(@PathVariable Long id) {
+        TranscriptResponse response = transcriptService.getTranscriptById(id);
+        return ResponseEntity.ok(new ApiResponse<>("Historial académico encontrado", response));
     }
 
     @GetMapping("/student/{studentId}")
-    public ResponseEntity<TranscriptResponse> getTranscriptByStudentId(@PathVariable Long studentId) {
-        return ResponseEntity.ok(transcriptService.getTranscriptByStudentId(studentId));
+    public ResponseEntity<ApiResponse<TranscriptResponse>> getTranscriptByStudentId(@PathVariable Long studentId) {
+        TranscriptResponse response = transcriptService.getTranscriptByStudentId(studentId);
+        return ResponseEntity.ok(new ApiResponse<>("Historial académico del estudiante encontrado", response));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<TranscriptResponse> updateTranscript(
+    public ResponseEntity<ApiResponse<TranscriptResponse>> updateTranscript(
             @PathVariable Long id,
             @RequestBody TranscriptRequest request) {
-        return ResponseEntity.ok(transcriptService.updateTranscript(id, request));
+        TranscriptResponse response = transcriptService.updateTranscript(id, request);
+        return ResponseEntity.ok(new ApiResponse<>("Historial académico actualizado exitosamente", response));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTranscript(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> deleteTranscript(@PathVariable Long id) {
         transcriptService.deleteTranscript(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new ApiResponse<>("Historial académico eliminado exitosamente", null));
     }
 }

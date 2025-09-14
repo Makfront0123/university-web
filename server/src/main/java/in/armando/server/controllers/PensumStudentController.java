@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import in.armando.server.io.ApiResponse;
 import in.armando.server.io.pensumStudent.PensumStudentRequest;
 import in.armando.server.io.pensumStudent.PensumStudentResponse;
 import in.armando.server.service.PensumStudentService;
@@ -25,28 +27,34 @@ public class PensumStudentController {
     private final PensumStudentService service;
 
     @PostMapping
-    public ResponseEntity<PensumStudentResponse> create(@RequestBody PensumStudentRequest request) {
+    public ResponseEntity<ApiResponse<PensumStudentResponse>> create(@RequestBody PensumStudentRequest request) {
         PensumStudentResponse response = service.createPensumStudent(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>("Registro de estudiante en pensum creado exitosamente", response));
     }
 
     @GetMapping
-    public List<PensumStudentResponse> getAll() {
-        return service.getAll();
+    public ResponseEntity<ApiResponse<List<PensumStudentResponse>>> getAll() {
+        List<PensumStudentResponse> response = service.getAll();
+        return ResponseEntity.ok(new ApiResponse<>("Lista de registros de estudiantes en pensum", response));
     }
 
     @GetMapping("/{id}")
-    public PensumStudentResponse getById(@PathVariable Long id) {
-        return service.getPensumStudentById(id);
+    public ResponseEntity<ApiResponse<PensumStudentResponse>> getById(@PathVariable Long id) {
+        PensumStudentResponse response = service.getPensumStudentById(id);
+        return ResponseEntity.ok(new ApiResponse<>("Registro de estudiante en pensum encontrado", response));
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> delete(@PathVariable Long id) {
         service.deletePensumStudent(id);
+        return ResponseEntity.ok(new ApiResponse<>("Registro de estudiante en pensum eliminado", null));
     }
 
     @PutMapping("/{id}")
-    public PensumStudentResponse update(@PathVariable Long id, @RequestBody PensumStudentRequest request) {
-        return service.updatePensumStudent(id, request);
+    public ResponseEntity<ApiResponse<PensumStudentResponse>> update(@PathVariable Long id,
+            @RequestBody PensumStudentRequest request) {
+        PensumStudentResponse response = service.updatePensumStudent(id, request);
+        return ResponseEntity.ok(new ApiResponse<>("Registro de estudiante en pensum actualizado", response));
     }
 }

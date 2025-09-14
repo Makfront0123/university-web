@@ -12,7 +12,7 @@ public interface SubjectEquivalenceService {
 
     SubjectEquivalenceResponse getSubjectEquivalence(Long id);
 
-    SubjectEquivalenceResponse updateSubjectEquivalence(SubjectEquivalenceRequest request);
+    SubjectEquivalenceResponse updateSubjectEquivalence(Long id,SubjectEquivalenceRequest request);
 
     SubjectEquivalenceResponse getSubjectEquivalences(SubjectEquivalenceRequest request);
 

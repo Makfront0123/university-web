@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.armando.server.io.ApiResponse;
 import in.armando.server.io.waitlist.WaitlistRequest;
 import in.armando.server.io.waitlist.WaitlistResponse;
 import in.armando.server.service.WaitlistService;
@@ -22,33 +23,39 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/waitlist")
 @RequiredArgsConstructor
 public class WaitlistController {
+
     private final WaitlistService waitlistService;
 
     @PostMapping
-    public ResponseEntity<WaitlistResponse> createWaitlist(@RequestBody WaitlistRequest request) {
+    public ResponseEntity<ApiResponse<WaitlistResponse>> createWaitlist(@RequestBody WaitlistRequest request) {
         WaitlistResponse response = waitlistService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>("Estudiante agregado a la lista de espera exitosamente", response));
     }
 
     @GetMapping("/{id}")
-    public WaitlistResponse getWaitlistById(@PathVariable Long id) {
-        return waitlistService.getById(id);
+    public ResponseEntity<ApiResponse<WaitlistResponse>> getWaitlistById(@PathVariable Long id) {
+        WaitlistResponse response = waitlistService.getById(id);
+        return ResponseEntity.ok(new ApiResponse<>("Lista de espera encontrada", response));
     }
 
     @GetMapping
-    public List<WaitlistResponse> getAllWaitlists() {
-        return waitlistService.getAll();
-    }
-
-    @DeleteMapping("/{id}")
-    public WaitlistResponse deleteWaitlist(@PathVariable Long id) {
-        return waitlistService.delete(id);
+    public ResponseEntity<ApiResponse<List<WaitlistResponse>>> getAllWaitlists() {
+        List<WaitlistResponse> response = waitlistService.getAll();
+        return ResponseEntity.ok(new ApiResponse<>("Lista completa de espera", response));
     }
 
     @PatchMapping("/{id}")
-    public WaitlistResponse updateWaitlist(
+    public ResponseEntity<ApiResponse<WaitlistResponse>> updateWaitlist(
             @PathVariable Long id,
             @RequestBody WaitlistRequest request) {
-        return waitlistService.update(id, request);
+        WaitlistResponse response = waitlistService.update(id, request);
+        return ResponseEntity.ok(new ApiResponse<>("Lista de espera actualizada exitosamente", response));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<String>> deleteWaitlist(@PathVariable Long id) {
+        waitlistService.delete(id);
+        return ResponseEntity.ok(new ApiResponse<>("Estudiante eliminado de la lista de espera", null));
     }
 }

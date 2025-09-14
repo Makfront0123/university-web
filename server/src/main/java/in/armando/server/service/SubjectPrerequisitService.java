@@ -12,7 +12,7 @@ public interface SubjectPrerequisitService {
 
     SubjectPrerequisitResponse getSubjectPrerequisit(Long id);
 
-    SubjectPrerequisitResponse updateSubjectPrerequisit(SubjectPrerequisitRequest request);
+    SubjectPrerequisitResponse updateSubjectPrerequisit(Long id, SubjectPrerequisitRequest request);
 
     List<SubjectPrerequisitResponse> getSubjectPrerequisits();
 }

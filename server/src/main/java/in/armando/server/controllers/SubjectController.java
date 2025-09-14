@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.armando.server.io.ApiResponse;
 import in.armando.server.io.subject.SubjectRequest;
 import in.armando.server.io.subject.SubjectResponse;
 import in.armando.server.service.SubjectService;
@@ -21,30 +22,37 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/subjects")
 @RequiredArgsConstructor
 public class SubjectController {
+
     private final SubjectService subjectService;
 
     @PostMapping
-    public ResponseEntity<SubjectResponse> createSubject(@RequestBody SubjectRequest request) {
-        return ResponseEntity.ok(subjectService.createSubject(request));
+    public ResponseEntity<ApiResponse<SubjectResponse>> createSubject(@RequestBody SubjectRequest request) {
+        SubjectResponse response = subjectService.createSubject(request);
+        return ResponseEntity.ok(new ApiResponse<>("Asignatura creada exitosamente", response));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<SubjectResponse> updateSubject(@PathVariable Long id, @RequestBody SubjectRequest request) {
-        return ResponseEntity.ok(subjectService.updateSubject(id, request));
+    public ResponseEntity<ApiResponse<SubjectResponse>> updateSubject(@PathVariable Long id,
+                                                                      @RequestBody SubjectRequest request) {
+        SubjectResponse response = subjectService.updateSubject(id, request);
+        return ResponseEntity.ok(new ApiResponse<>("Asignatura actualizada exitosamente", response));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<SubjectResponse> deleteSubject(@PathVariable Long id) {
-        return ResponseEntity.ok(subjectService.deleteSubject(id));
+    public ResponseEntity<ApiResponse<SubjectResponse>> deleteSubject(@PathVariable Long id) {
+        SubjectResponse response = subjectService.deleteSubject(id);
+        return ResponseEntity.ok(new ApiResponse<>("Asignatura eliminada exitosamente", response));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SubjectResponse> getSubjectById(@PathVariable Long id) {
-        return ResponseEntity.ok(subjectService.getSubjectById(id));
+    public ResponseEntity<ApiResponse<SubjectResponse>> getSubjectById(@PathVariable Long id) {
+        SubjectResponse response = subjectService.getSubjectById(id);
+        return ResponseEntity.ok(new ApiResponse<>("Asignatura encontrada", response));
     }
 
     @GetMapping
-    public ResponseEntity<List<SubjectResponse>> getAllSubjects() {
-        return ResponseEntity.ok(subjectService.getAllSubjects());
+    public ResponseEntity<ApiResponse<List<SubjectResponse>>> getAllSubjects() {
+        List<SubjectResponse> response = subjectService.getAllSubjects();
+        return ResponseEntity.ok(new ApiResponse<>("Lista de asignaturas", response));
     }
 }

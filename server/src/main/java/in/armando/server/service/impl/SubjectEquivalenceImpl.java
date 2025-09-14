@@ -59,28 +59,6 @@ public class SubjectEquivalenceImpl implements SubjectEquivalenceService {
     }
 
     @Override
-    public SubjectEquivalenceResponse updateSubjectEquivalence(SubjectEquivalenceRequest request) {
-        SubjectEquivalenceEntity entity = subjectEquivalenceRepository.findById(request.getSubjectId())
-                .orElseThrow(() -> new RuntimeException("Equivalence not found with id " + request.getSubjectId()));
-
-        if (request.getSubjectId() != null) {
-            SubjectEntity subject = subjectRepository.findById(request.getSubjectId())
-                    .orElseThrow(() -> new RuntimeException("Subject not found with id " + request.getSubjectId()));
-            entity.setSubject(subject);
-        }
-
-        if (request.getEquivalentSubjectId() != null) {
-            SubjectEntity equivalentSubject = subjectRepository.findById(request.getEquivalentSubjectId())
-                    .orElseThrow(() -> new RuntimeException(
-                            "Equivalent subject not found with id " + request.getEquivalentSubjectId()));
-            entity.setEquivalentSubject(equivalentSubject);
-        }
-
-        SubjectEquivalenceEntity updated = subjectEquivalenceRepository.save(entity);
-        return mapToResponse(updated);
-    }
-
-    @Override
     public SubjectEquivalenceResponse getSubjectEquivalences(SubjectEquivalenceRequest request) {
         List<SubjectEquivalenceEntity> entities = subjectEquivalenceRepository.findBySubjectId(request.getSubjectId());
         if (entities.isEmpty()) {
@@ -105,6 +83,28 @@ public class SubjectEquivalenceImpl implements SubjectEquivalenceService {
         response.setSubjectId(entity.getSubject().getId());
         response.setEquivalentSubjectId(entity.getEquivalentSubject().getId());
         return response;
+    }
+
+    @Override
+    public SubjectEquivalenceResponse updateSubjectEquivalence(Long id, SubjectEquivalenceRequest request) {
+        SubjectEquivalenceEntity entity = subjectEquivalenceRepository.findById(request.getSubjectId())
+                .orElseThrow(() -> new RuntimeException("Equivalence not found with id " + request.getSubjectId()));
+
+        if (request.getSubjectId() != null) {
+            SubjectEntity subject = subjectRepository.findById(request.getSubjectId())
+                    .orElseThrow(() -> new RuntimeException("Subject not found with id " + request.getSubjectId()));
+            entity.setSubject(subject);
+        }
+
+        if (request.getEquivalentSubjectId() != null) {
+            SubjectEntity equivalentSubject = subjectRepository.findById(request.getEquivalentSubjectId())
+                    .orElseThrow(() -> new RuntimeException(
+                            "Equivalent subject not found with id " + request.getEquivalentSubjectId()));
+            entity.setEquivalentSubject(equivalentSubject);
+        }
+
+        SubjectEquivalenceEntity updated = subjectEquivalenceRepository.save(entity);
+        return mapToResponse(updated);
     }
 
 }

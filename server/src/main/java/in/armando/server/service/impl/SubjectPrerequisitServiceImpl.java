@@ -64,7 +64,23 @@ public class SubjectPrerequisitServiceImpl implements SubjectPrerequisitService 
     }
 
     @Override
-    public SubjectPrerequisitResponse updateSubjectPrerequisit(SubjectPrerequisitRequest request) {
+    public List<SubjectPrerequisitResponse> getSubjectPrerequisits() {
+        return subjectPrerequisitRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    private SubjectPrerequisitResponse mapToResponse(SubjectPrerequisisitEntity entity) {
+        return SubjectPrerequisitResponse.builder()
+                .id(entity.getId())
+                .subjectId(entity.getSubject().getId())
+                .requiredSubjectId(entity.getRequiredSubject().getId())
+                .build();
+    }
+
+    @Override
+    public SubjectPrerequisitResponse updateSubjectPrerequisit(Long id, SubjectPrerequisitRequest request) {
         SubjectPrerequisisitEntity entity = subjectPrerequisitRepository.findById(request.getSubjectId())
                 .orElseThrow(() -> new RuntimeException("Equivalence not found with id " + request.getSubjectId()));
 
@@ -83,22 +99,6 @@ public class SubjectPrerequisitServiceImpl implements SubjectPrerequisitService 
 
         SubjectPrerequisisitEntity updated = subjectPrerequisitRepository.save(entity);
         return mapToResponse(updated);
-    }
-
-    @Override
-    public List<SubjectPrerequisitResponse> getSubjectPrerequisits() {
-        return subjectPrerequisitRepository.findAll()
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
-    }
-
-    private SubjectPrerequisitResponse mapToResponse(SubjectPrerequisisitEntity entity) {
-        return SubjectPrerequisitResponse.builder()
-                .id(entity.getId())
-                .subjectId(entity.getSubject().getId())
-                .requiredSubjectId(entity.getRequiredSubject().getId())
-                .build();
     }
 
 }
