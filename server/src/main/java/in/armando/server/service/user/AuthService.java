@@ -25,8 +25,6 @@ public interface AuthService {
 
     String logout(String token);
 
-    String logoutByEmail(String email);
-
     String resendOtp(String email);
 
     String forgot(String email);

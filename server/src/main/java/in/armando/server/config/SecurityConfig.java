@@ -38,10 +38,14 @@ public class SecurityConfig {
                 http
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .csrf(AbstractHttpConfigurer::disable)
+                                .logout(AbstractHttpConfigurer::disable)
                                 .securityMatcher(
                                                 "/login", "/encode", "/register", "/verify",
-                                                "/resend-otp", "/forgot", "/verifyForgot",
-                                                "/reset-password", "/test-auth", "/debug-user", "/error")
+                                                "/resend-otp", "/forgot", "/verifyForgot","/verify-forgot",
+                                                "/reset-password", "/test-auth", "/debug-user", "/error",
+                                                "/logout","forgot-password"
+                                )
+
                                 .authorizeHttpRequests(auth -> auth
                                                 .anyRequest().permitAll())
                                 .sessionManagement(session -> session

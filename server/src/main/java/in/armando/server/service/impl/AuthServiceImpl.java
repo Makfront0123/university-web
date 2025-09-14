@@ -80,6 +80,7 @@ public class AuthServiceImpl implements AuthService {
                 .role(RoleResponse.builder()
                         .id(user.getRole().getId())
                         .name(user.getRole().getName())
+                        .description(user.getRole().getDescription())
                         .build())
                 .verified(user.isVerified())
                 .createdAt(user.getCreatedAt())
@@ -89,8 +90,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String getUserRole(String email) {
-        UserEntity existingUser = repository.findByEmail(email).orElseThrow(
-                () -> new RuntimeException("Usuario no encontrado"));
+        UserEntity existingUser = repository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
         return existingUser.getRole().getName();
     }
@@ -204,13 +205,11 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse verifyOtpForgot(String email, String otp) {
         UserEntity user = repository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
         if (user.getOtp() == null || !user.getOtp().equals(otp)) {
-            throw new RuntimeException("Código OTP inválido o ya usado");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Código OTP inválido o ya usado");
         }
-
         if (user.getOtpExpiration().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("El OTP ha expirado");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El OTP ha expirado");
         }
 
         user.setOtp(null);
@@ -232,15 +231,6 @@ public class AuthServiceImpl implements AuthService {
         return "Password reset successfully";
     }
 
-    @Override
-    public String logoutByEmail(String email) {
-        String token = jwtUtil.extractToken(email);
-        if (token == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No active session for this user.");
-        }
-        tokenBlacklistService.blacklistToken(token);
-        activeSessionService.removeSession(email);
-        return "Logout successful";
-    }
+    
 
 }

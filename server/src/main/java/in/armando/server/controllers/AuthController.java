@@ -13,11 +13,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import in.armando.server.entity.UserEntity;
+import in.armando.server.io.ApiResponse;
 import in.armando.server.io.auth.AuthRequest;
 import in.armando.server.io.auth.AuthResponse;
 import in.armando.server.io.auth.OtpRequest;
@@ -40,79 +42,91 @@ public class AuthController {
     private final ActiveSessionService activeSessionService;
 
     @PostMapping("/register")
-    public UserResponse register(@RequestBody UserRequest request) {
-        return authService.register(request);
+    public ResponseEntity<ApiResponse<UserResponse>> register(@RequestBody UserRequest request) {
+        UserResponse response = authService.register(request);
+        return ResponseEntity.ok(new ApiResponse<>("Usuario registrado exitosamente", response));
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<?> verifyOtp(@RequestBody OtpRequest request) {
-        try {
-            return ResponseEntity.ok(authService.verifyOtp(request.getEmail(), request.getOtp()));
-        } catch (Exception e) {
-            throw new Error(e);
-        }
+    public ResponseEntity<ApiResponse<UserResponse>> verifyOtp(@RequestBody OtpRequest request) {
+        UserResponse response = authService.verifyOtp(request.getEmail(), request.getOtp());
+        return ResponseEntity.ok(new ApiResponse<>("Cuenta verificada exitosamente", response));
     }
 
     @PostMapping("/resend-otp")
-    public String resendOtp(@RequestParam String email) {
-        return authService.resendOtp(email);
+    public ResponseEntity<ApiResponse<String>> resendOtp(@RequestParam String email) {
+        authService.resendOtp(email);
+        return ResponseEntity.ok(new ApiResponse<>("OTP reenviado", null));
     }
 
     @PostMapping("/forgot-password")
-    public String forgotPassword(@RequestParam String email) {
-        return authService.forgot(email);
+    public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String message = authService.forgot(email);
+        return ResponseEntity.ok(new ApiResponse<>("OTP para resetear enviado", message));
     }
 
     @PostMapping("/verify-forgot")
-    public UserResponse verifyOtpForgot(@RequestParam String email, @RequestParam String otp) {
-        return authService.verifyOtpForgot(email, otp);
+    public ResponseEntity<ApiResponse<UserResponse>> verifyOtpForgot(@RequestBody OtpRequest request) {
+        UserResponse response = authService.verifyOtpForgot(request.getEmail(), request.getOtp());
+        return ResponseEntity.ok(new ApiResponse<>("OTP de recuperación validado", response));
     }
 
     @PostMapping("/reset-password")
-    public String resetPassword(@RequestParam String email,
-            @RequestParam String password,
-            @RequestParam String newPassword) {
-        return authService.resetPassword(email, password, newPassword);
+    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String password = request.get("password");
+        String newPassword = request.get("newPassword");
+
+        String message = authService.resetPassword(email, password, newPassword);
+        return ResponseEntity.ok(new ApiResponse<>("Contraseña reseteada exitosamente", message));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        authService.logout(token);
+        return ResponseEntity.ok(new ApiResponse<>("Logout exitoso", null));
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody AuthRequest request) {
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@RequestBody AuthRequest request) {
         try {
-            // 1. Buscar al usuario en BD
             final UserEntity user = authService.getUserByEmail(request.getEmail());
 
-            // 2. Si no está verificado, detener el flujo ANTES de autenticar
             if (!user.isVerified()) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Esta cuenta no está verificada");
             }
 
-            // 3. Autenticación normal
             authenticate(request.getEmail(), request.getPassword());
 
             final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
 
             String existingToken = activeSessionService.getToken(request.getEmail());
             if (existingToken != null && !jwtUtil.isTokenExpired(existingToken)) {
-                return new AuthResponse(
+                AuthResponse response = new AuthResponse(
                         request.getEmail(),
                         authService.getUserRole(request.getEmail()),
                         existingToken,
                         user.isVerified());
+                return ResponseEntity.ok(new ApiResponse<>("Sesión activa", response));
             }
 
             final String token = jwtUtil.generateToken(userDetails);
             activeSessionService.createSession(request.getEmail(), token);
 
-            return new AuthResponse(
+            AuthResponse response = new AuthResponse(
                     request.getEmail(),
                     authService.getUserRole(request.getEmail()),
                     token,
                     user.isVerified());
 
+            return ResponseEntity.ok(new ApiResponse<>("Login exitoso", response));
+
         } catch (ResponseStatusException e) {
             throw e;
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno", e);
         }
     }
 
@@ -121,14 +135,15 @@ public class AuthController {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, password));
         } catch (DisabledException e) {
-            throw new Exception("User disabled");
+            throw new Exception("Usuario deshabilitado");
         } catch (BadCredentialsException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid credentials");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Credenciales inválidas");
         }
     }
 
     @PostMapping("/encode")
-    public String encodePassword(@RequestBody Map<String, String> request) {
-        return passwordEncoder.encode(request.get("password"));
+    public ResponseEntity<ApiResponse<String>> encodePassword(@RequestBody Map<String, String> request) {
+        String encoded = passwordEncoder.encode(request.get("password"));
+        return ResponseEntity.ok(new ApiResponse<>("Contraseña encriptada", encoded));
     }
 }
