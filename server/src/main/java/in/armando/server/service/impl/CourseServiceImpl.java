@@ -107,6 +107,12 @@ public class CourseServiceImpl implements CourseService {
                 ProfessorEntity professor = professorRepository.findById(request.getProfessorId())
                                 .orElseThrow(() -> new RuntimeException("Professor not found"));
 
+                boolean hasConflict = courseRepository.existsByProfessorAndShiftAndSemester(
+                                professor, shift, semester);
+                if (hasConflict) {
+                        throw new RuntimeException("El profesor ya tiene un curso asignado en este turno y semestre");
+                }
+
                 CourseEntity course = CourseEntity.builder()
                                 .classRoom(request.getClassRoom())
                                 .capacity(request.getCapacity())
@@ -142,7 +148,6 @@ public class CourseServiceImpl implements CourseService {
                 CourseEntity course = courseRepository.findById(id)
                                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
-            
                 if (request.getClassRoom() != null) {
                         course.setClassRoom(request.getClassRoom());
                 }
@@ -166,9 +171,17 @@ public class CourseServiceImpl implements CourseService {
                                         .orElseThrow(() -> new RuntimeException("Professor not found")));
                 }
 
+                boolean hasConflict = courseRepository.existsByProfessorAndShiftAndSemesterAndIdNot(
+                                course.getProfessor(),
+                                course.getShift(),
+                                course.getSemester(),
+                                course.getId());
+                if (hasConflict) {
+                        throw new RuntimeException("El profesor ya tiene un curso asignado en este turno y semestre");
+                }
+
                 CourseEntity updated = courseRepository.save(course);
                 return mapToResponse(updated, "Curso actualizado correctamente");
-
         }
 
         @Override

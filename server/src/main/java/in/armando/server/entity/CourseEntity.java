@@ -6,13 +6,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 @Entity
 @Table(name = "courses")
 @Builder
@@ -24,20 +24,20 @@ public class CourseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "subjectId", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "subjectId", nullable = false)
     private SubjectEntity subject;
 
-    @OneToOne
-    @JoinColumn(name = "semesterId", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "semesterId", nullable = false)
     private SemesterEntity semester;
 
-    @OneToOne
-    @JoinColumn(name = "shiftId", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "shiftId", nullable = false)
     private ShiftEntity shift;
 
-    @OneToOne
-    @JoinColumn(name = "professorId", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "professorId", nullable = false)
     private ProfessorEntity professor;
 
     @Column(nullable = false)
@@ -45,5 +45,4 @@ public class CourseEntity {
 
     @Column(nullable = false)
     private Integer capacity;
-
 }
