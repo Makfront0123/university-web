@@ -62,8 +62,8 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestBody Map<String, String> request) {
         String email = request.get("email");
-        String message = authService.forgot(email);
-        return ResponseEntity.ok(new ApiResponse<>("OTP para resetear enviado", message));
+        authService.forgot(email);
+        return ResponseEntity.ok(new ApiResponse<>("OTP para resetear enviado", null));
     }
 
     @PostMapping("/verify-forgot")
@@ -73,13 +73,13 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody Map<String, String> request) {
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestBody Map<String, String> request) {
         String email = request.get("email");
         String password = request.get("password");
         String newPassword = request.get("newPassword");
 
-        String message = authService.resetPassword(email, password, newPassword);
-        return ResponseEntity.ok(new ApiResponse<>("Contraseña reseteada exitosamente", message));
+        authService.resetPassword(email, password, newPassword);
+        return ResponseEntity.ok(new ApiResponse<>("Contraseña reseteada exitosamente", null));
     }
 
     @PostMapping("/logout")

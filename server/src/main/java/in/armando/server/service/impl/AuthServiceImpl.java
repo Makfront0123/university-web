@@ -31,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final TokenBlacklistService tokenBlacklistService;
@@ -38,9 +39,8 @@ public class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final StudentsService studentService;
     private final ProfessorService professorService;
-    final JwtUtil jwtUtil;
-
-    final EmailService emailService;
+    private final JwtUtil jwtUtil;
+    private final EmailService emailService;
 
     @Override
     public UserResponse register(UserRequest request) {
@@ -106,16 +106,16 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void delete(String userId) {
-        UserEntity existingUser = repository.findByEmail(userId).orElseThrow(
-                () -> new RuntimeException("Usuario no encontrado"));
+        UserEntity existingUser = repository.findByEmail(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         repository.delete(existingUser);
     }
 
     @Override
     public UserResponse getUserById(String userId) {
-        UserEntity existingUser = repository.findByEmail(userId).orElseThrow(
-                () -> new RuntimeException("Usuario no encontrado"));
+        UserEntity existingUser = repository.findByEmail(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         return convertToResponse(existingUser);
     }
@@ -136,6 +136,7 @@ public class AuthServiceImpl implements AuthService {
         user.setOtp(null);
         user.setOtpExpiration(null);
         repository.save(user);
+
         if ("STUDENTS".equals(user.getRole().getName())) {
             StudentsRequest studentRequest = new StudentsRequest();
             studentRequest.setUserId(user.getId());
@@ -157,22 +158,18 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String logout(String token) {
-        System.out.println("Token recibido para logout: " + token);
-
+    public void logout(String token) {
         try {
             String email = jwtUtil.extractUsername(token);
             tokenBlacklistService.blacklistToken(token);
             activeSessionService.removeSession(email);
-            return "Logout successful";
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado", e);
         }
-
     }
 
     @Override
-    public String resendOtp(String email) {
+    public void resendOtp(String email) {
         UserEntity user = repository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -182,12 +179,10 @@ public class AuthServiceImpl implements AuthService {
         repository.save(user);
 
         emailService.sendOtp(user.getEmail(), otp);
-
-        return "OTP reenviado correctamente";
     }
 
     @Override
-    public String forgot(String email) {
+    public void forgot(String email) {
         UserEntity user = repository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -197,8 +192,6 @@ public class AuthServiceImpl implements AuthService {
         repository.save(user);
 
         emailService.sendOtp(user.getEmail(), otp);
-
-        return "OTP reenviado correctamente";
     }
 
     @Override
@@ -220,17 +213,11 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String resetPassword(String email, String password, String newPassword) {
+    public void resetPassword(String email, String password, String newPassword) {
         UserEntity user = repository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         user.setPassword(passwordEncoder.encode(newPassword));
-
         repository.save(user);
-
-        return "Password reset successfully";
     }
-
-    
-
 }

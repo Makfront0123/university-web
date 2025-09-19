@@ -5,7 +5,6 @@ import java.util.List;
 import in.armando.server.entity.UserEntity;
 import in.armando.server.io.user.UserRequest;
 import in.armando.server.io.user.UserResponse;
-
 public interface AuthService {
     UserResponse register(UserRequest request);
 
@@ -23,12 +22,11 @@ public interface AuthService {
 
     UserResponse getUserById(String userId);
 
-    String logout(String token);
+    void logout(String token);
 
-    String resendOtp(String email);
+    void resendOtp(String email);
 
-    String forgot(String email);
+    void forgot(String email);
 
-    String resetPassword(String email, String password, String newPassword);
-
+    void resetPassword(String email, String password, String newPassword);
 }

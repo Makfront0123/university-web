@@ -34,12 +34,9 @@ public class CourseServiceImpl implements CourseService {
         private final SemesterRepository semesterRepository;
         private final ShiftRepository shiftRepository;
         private final ProfessorRepository professorRepository;
+ 
 
-        private CourseResponse mapToResponse(CourseEntity shift) {
-                return mapToResponse(shift, null);
-        }
-
-        private CourseResponse mapToResponse(CourseEntity course, String message) {
+        private CourseResponse mapToResponse(CourseEntity course) {
                 return CourseResponse.builder()
                                 .id(course.getId())
                                 .classRoom(course.getClassRoom())
@@ -50,14 +47,12 @@ public class CourseServiceImpl implements CourseService {
                                                 course.getSubject().getName(),
                                                 course.getSubject().getCredits(),
                                                 null) : null)
-
                                 .semester(course.getSemester() != null ? new SemesterResponse(
                                                 course.getSemester().getId(),
                                                 course.getSemester().getName(),
                                                 course.getSemester().getStartDate(),
                                                 course.getSemester().getEndDate(),
                                                 null) : null)
-
                                 .shift(course.getShift() != null ? new ShiftResponse(
                                                 course.getShift().getId(),
                                                 course.getShift().getName(),
@@ -65,7 +60,6 @@ public class CourseServiceImpl implements CourseService {
                                                 course.getShift().getEndTime(),
                                                 course.getShift().getDayOfWeek(),
                                                 null) : null)
-
                                 .professor(course.getProfessor() != null ? ProfessorResponse.builder()
                                                 .id(course.getProfessor().getId())
                                                 .code(course.getProfessor().getCode())
@@ -80,8 +74,7 @@ public class CourseServiceImpl implements CourseService {
                                                                                 .name(course.getProfessor().getUser()
                                                                                                 .getRole().getName())
                                                                                 .description(course.getProfessor()
-                                                                                                .getUser()
-                                                                                                .getRole()
+                                                                                                .getUser().getRole()
                                                                                                 .getDescription())
                                                                                 .build())
                                                                 .verified(course.getProfessor().getUser().isVerified())
@@ -92,7 +85,6 @@ public class CourseServiceImpl implements CourseService {
                                                                 .build())
                                                 .build()
                                                 : null)
-
                                 .build();
         }
 
@@ -124,7 +116,7 @@ public class CourseServiceImpl implements CourseService {
 
                 course = courseRepository.save(course);
 
-                return mapToResponse(course, "Curso creado correctamente");
+                return mapToResponse(course);
         }
 
         @Override
@@ -181,7 +173,7 @@ public class CourseServiceImpl implements CourseService {
                 }
 
                 CourseEntity updated = courseRepository.save(course);
-                return mapToResponse(updated, "Curso actualizado correctamente");
+                return mapToResponse(updated);
         }
 
         @Override
