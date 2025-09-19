@@ -1,5 +1,5 @@
 package in.armando.server.service.impl;
-
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -34,7 +34,6 @@ public class CourseServiceImpl implements CourseService {
         private final SemesterRepository semesterRepository;
         private final ShiftRepository shiftRepository;
         private final ProfessorRepository professorRepository;
- 
 
         private CourseResponse mapToResponse(CourseEntity course) {
                 return CourseResponse.builder()
@@ -90,6 +89,10 @@ public class CourseServiceImpl implements CourseService {
 
         @Override
         public CourseResponse createCourse(CourseRequest request) {
+                if (request.getCapacity() == null || request.getCapacity() <= 0) {
+                        throw new RuntimeException("La capacidad del curso debe ser mayor a 0");
+                }
+
                 SubjectEntity subject = subjectRepository.findById(request.getSubjectId())
                                 .orElseThrow(() -> new RuntimeException("Subject not found"));
                 SemesterEntity semester = semesterRepository.findById(request.getSemesterId())
@@ -99,12 +102,26 @@ public class CourseServiceImpl implements CourseService {
                 ProfessorEntity professor = professorRepository.findById(request.getProfessorId())
                                 .orElseThrow(() -> new RuntimeException("Professor not found"));
 
+                LocalDateTime today = LocalDateTime.now();
+                if (today.isBefore(semester.getStartDate()) || today.isAfter(semester.getEndDate())) {
+                        throw new RuntimeException("El semestre seleccionado no es válido");
+                }
+
+                if (!"PROFESOR".equalsIgnoreCase(professor.getUser().getRole().getName())) {
+                        throw new RuntimeException("El usuario seleccionado no es un profesor");
+                }
+
                 boolean hasConflict = courseRepository.existsByProfessorAndShiftAndSemester(
                                 professor, shift, semester);
                 if (hasConflict) {
                         throw new RuntimeException("El profesor ya tiene un curso asignado en este turno y semestre");
                 }
 
+                boolean classRoomConflict = courseRepository.existsByClassRoomAndShiftAndSemester(
+                                request.getClassRoom(), shift, semester);
+                if (classRoomConflict) {
+                        throw new RuntimeException("Ya existe un curso con la misma clase en este turno y semestre");
+                }
                 CourseEntity course = CourseEntity.builder()
                                 .classRoom(request.getClassRoom())
                                 .capacity(request.getCapacity())
@@ -140,27 +157,37 @@ public class CourseServiceImpl implements CourseService {
                 CourseEntity course = courseRepository.findById(id)
                                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
+                if (request.getCapacity() != null && request.getCapacity() <= 0) {
+                        throw new RuntimeException("La capacidad del curso debe ser mayor a 0");
+                }
+
                 if (request.getClassRoom() != null) {
                         course.setClassRoom(request.getClassRoom());
                 }
-                if (request.getCapacity() != null) {
-                        course.setCapacity(request.getCapacity());
-                }
+
                 if (request.getSubjectId() != null) {
                         course.setSubject(subjectRepository.findById(request.getSubjectId())
                                         .orElseThrow(() -> new RuntimeException("Subject not found")));
                 }
+
                 if (request.getSemesterId() != null) {
-                        course.setSemester(semesterRepository.findById(request.getSemesterId())
-                                        .orElseThrow(() -> new RuntimeException("Semester not found")));
+                        throw new RuntimeException("No se puede cambiar el semestre de un curso ya creado");
                 }
+
                 if (request.getShiftId() != null) {
                         course.setShift(shiftRepository.findById(request.getShiftId())
                                         .orElseThrow(() -> new RuntimeException("Shift not found")));
                 }
+
                 if (request.getProfessorId() != null) {
-                        course.setProfessor(professorRepository.findById(request.getProfessorId())
-                                        .orElseThrow(() -> new RuntimeException("Professor not found")));
+                        ProfessorEntity professor = professorRepository.findById(request.getProfessorId())
+                                        .orElseThrow(() -> new RuntimeException("Professor not found"));
+
+                        if (!"PROFESOR".equalsIgnoreCase(professor.getUser().getRole().getName())) {
+                                throw new RuntimeException("El usuario asignado no tiene rol de PROFESOR");
+                        }
+
+                        course.setProfessor(professor);
                 }
 
                 boolean hasConflict = courseRepository.existsByProfessorAndShiftAndSemesterAndIdNot(
@@ -170,6 +197,15 @@ public class CourseServiceImpl implements CourseService {
                                 course.getId());
                 if (hasConflict) {
                         throw new RuntimeException("El profesor ya tiene un curso asignado en este turno y semestre");
+                }
+
+                boolean classRoomConflict = courseRepository.existsByClassRoomAndShiftAndSemesterAndIdNot(
+                                course.getClassRoom(),
+                                course.getShift(),
+                                course.getSemester(),
+                                course.getId());
+                if (classRoomConflict) {
+                        throw new RuntimeException("El salón ya está ocupado en este turno y semestre");
                 }
 
                 CourseEntity updated = courseRepository.save(course);
