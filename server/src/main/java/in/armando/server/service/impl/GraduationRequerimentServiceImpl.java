@@ -10,6 +10,7 @@ import in.armando.server.io.graduationRequeriment.GraduationRequerimentRequest;
 import in.armando.server.io.graduationRequeriment.GraduationRequerimentResponse;
 import in.armando.server.repository.GraduationRequerimentRepository;
 import in.armando.server.repository.PensumRepository;
+import in.armando.server.repository.SubjectRepository;
 import in.armando.server.service.GraduationRequerimentService;
 import lombok.RequiredArgsConstructor;
 
@@ -18,11 +19,26 @@ import lombok.RequiredArgsConstructor;
 public class GraduationRequerimentServiceImpl implements GraduationRequerimentService {
     private final GraduationRequerimentRepository repository;
     private final PensumRepository pensumRepository;
+    private final SubjectRepository subjectRepository;
 
     @Override
     public GraduationRequerimentResponse create(GraduationRequerimentRequest request) {
         PensumEntity pensum = pensumRepository.findById(request.getPensumId())
                 .orElseThrow(() -> new RuntimeException("Pensum not found"));
+
+        if (repository.existsByNameAndPensumId(request.getName(), pensum.getId())) {
+            throw new RuntimeException("Ya existe una relación con el nombre " + request.getName());
+        }
+
+        Integer totalCredits = subjectRepository.sumCreditsByPensumId(pensum.getId());
+        if (totalCredits == null) {
+            totalCredits = 0;
+        }
+
+        if (request.getMandatoryCredits() != null && request.getMandatoryCredits() > totalCredits) {
+            throw new RuntimeException("El requerimiento de graduación no puede ser mayor a los créditos del pensum ("
+                    + totalCredits + ")");
+        }
 
         GraduationRequerimentEntity entity = GraduationRequerimentEntity.builder()
                 .name(request.getName())

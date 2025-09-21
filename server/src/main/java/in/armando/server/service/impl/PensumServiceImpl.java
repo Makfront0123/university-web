@@ -9,6 +9,7 @@ import in.armando.server.io.pensum.PensumRequest;
 import in.armando.server.io.pensum.PensumResponse;
 import in.armando.server.repository.PensumRepository;
 import in.armando.server.service.PensumService;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -19,6 +20,14 @@ public class PensumServiceImpl implements PensumService {
 
     @Override
     public PensumResponse create(PensumRequest request) {
+        if (pensumRepository.existsByName(request.getName())) {
+            throw new RuntimeException("Ya existe un pensum con el nombre " + request.getName());
+        }
+
+        if (pensumRepository.existsByDescription(request.getDescription())) {
+            throw new RuntimeException("Ya existe un pensum con la descripción " + request.getDescription());
+        }
+
         PensumEntity entity = PensumEntity.builder()
                 .name(request.getName())
                 .description(request.getDescription())
@@ -32,11 +41,16 @@ public class PensumServiceImpl implements PensumService {
         PensumEntity entity = pensumRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pensum not found"));
 
-        if (request.getName() != null) {
-            entity.setName(request.getName());
+        if (request.getName() != null &&
+                !request.getName().equals(entity.getName()) &&
+                pensumRepository.existsByName(request.getName())) {
+            throw new RuntimeException("Ya existe un pensum con el nombre " + request.getName());
         }
-        if (request.getDescription() != null) {
-            entity.setDescription(request.getDescription());
+
+        if (request.getDescription() != null &&
+                !request.getDescription().equals(entity.getDescription()) &&
+                pensumRepository.existsByDescription(request.getDescription())) {
+            throw new RuntimeException("Ya existe un pensum con la descripción " + request.getDescription());
         }
 
         return toResponse(pensumRepository.save(entity));
