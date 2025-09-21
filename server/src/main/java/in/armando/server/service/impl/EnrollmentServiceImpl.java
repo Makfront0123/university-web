@@ -7,12 +7,14 @@ import org.springframework.stereotype.Service;
 
 import in.armando.server.entity.CourseEntity;
 import in.armando.server.entity.EnrollmentEntity;
+import in.armando.server.entity.SemesterEntity;
 import in.armando.server.entity.StudentEntity;
 import in.armando.server.io.enrollment.EnrollmentResponse;
 import in.armando.server.repository.CourseRepository;
 import in.armando.server.repository.EnrollmentRepository;
 import in.armando.server.repository.StudentRepository;
 import in.armando.server.service.EnrollmentService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -100,6 +102,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .toList();
     }
 
+    @Transactional
     @Override
     public EnrollmentResponse createEnrollment(EnrollmentResponse enrollment) {
         CourseEntity course = courseRepository.findById(enrollment.getCourseId())
@@ -107,6 +110,35 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         StudentEntity student = studentRepository.findById(enrollment.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        boolean alreadyEnrolled = enrollmentRepository.findByCourseIdAndStudentId(course.getId(), student.getId())
+                .stream()
+                .findAny()
+                .isPresent();
+
+        if (alreadyEnrolled) {
+            throw new RuntimeException("Student already enrolled");
+        }
+
+        long enrolledCount = enrollmentRepository.countByCourseId(course.getId());
+
+        if (enrolledCount >= course.getCapacity()) {
+            throw new RuntimeException("Course already full");
+        }
+
+        SemesterEntity semester = course.getSemester();
+
+        LocalDate today = LocalDate.now();
+
+        if (semester.getStartDate() != null && today.isBefore(semester.getStartDate().toLocalDate())) {
+            throw new RuntimeException("La inscripción ya no está disponible. El semestre comienza el "
+                    + semester.getStartDate().toLocalDate());
+        }
+
+        if (semester.getEndDate() != null && today.isAfter(semester.getEndDate().toLocalDate())) {
+            throw new RuntimeException("La inscripción ya no está disponible. El semestre finaliza el "
+                    + semester.getEndDate().toLocalDate());
+        }
 
         EnrollmentEntity enrollmentEntity = EnrollmentEntity.builder()
                 .course(course)
