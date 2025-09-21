@@ -1,8 +1,5 @@
 package in.armando.server.service.impl;
-
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 
 import in.armando.server.entity.PensumEntity;
@@ -17,7 +14,6 @@ import in.armando.server.repository.PensumSubjectRepository;
 import in.armando.server.repository.SubjectRepository;
 import in.armando.server.service.PensumSubjectService;
 import lombok.RequiredArgsConstructor;
-
 @Service
 @RequiredArgsConstructor
 public class PensumSubjectServiceImpl implements PensumSubjectService {
@@ -28,29 +24,26 @@ public class PensumSubjectServiceImpl implements PensumSubjectService {
 
     @Override
     public PensumSubjectResponse create(PensumSubjectRequest request) {
-        Optional<PensumEntity> pensumOpt = pensumRepository.findById(request.getPensumId());
-        if (pensumOpt.isEmpty()) {
-            return PensumSubjectResponse.builder()
-                    .message("Pensum not found")
-                    .build();
-        }
+        PensumEntity pensum = pensumRepository.findById(request.getPensumId())
+                .orElseThrow(() -> new RuntimeException("Pensum not found"));
 
-        Optional<SubjectEntity> subjectOpt = subjectRepository.findById(request.getSubjectId());
-        if (subjectOpt.isEmpty()) {
-            return PensumSubjectResponse.builder()
-                    .message("Subject not found")
-                    .build();
+        SubjectEntity subject = subjectRepository.findById(request.getSubjectId())
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+ 
+        if (pensumSubjectRepository.existsByPensumAndSubject(pensum, subject)) {
+            throw new RuntimeException("La asignatura ya está asociada a este pensum");
         }
-
-        PensumEntity pensum = pensumOpt.get();
-        SubjectEntity subject = subjectOpt.get();
 
         PensumSubjectEntity entity = PensumSubjectEntity.builder()
-                .pensumId(pensum)
-                .subjectId(subject)
+                .pensum(pensum)
+                .subject(subject)
                 .build();
 
-        return toResponse(pensumSubjectRepository.save(entity));
+        PensumSubjectEntity saved = pensumSubjectRepository.save(entity);
+
+        PensumSubjectResponse response = toResponse(saved);
+        response.setMessage("Asociación creada con éxito");
+        return response;
     }
 
     @Override
@@ -62,9 +55,9 @@ public class PensumSubjectServiceImpl implements PensumSubjectService {
 
     @Override
     public PensumSubjectResponse getById(Long id) {
-        return pensumSubjectRepository.findById(id)
-                .map(this::toResponse)
+        PensumSubjectEntity entity = pensumSubjectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Relation not found"));
+        return toResponse(entity);
     }
 
     @Override
@@ -75,52 +68,21 @@ public class PensumSubjectServiceImpl implements PensumSubjectService {
         pensumSubjectRepository.deleteById(id);
     }
 
-    private PensumSubjectResponse toResponse(PensumSubjectEntity entity) {
-        return PensumSubjectResponse.builder()
-                .id(entity.getId())
-                .pensumId(PensumResponse.builder()
-                        .id(entity.getPensumId().getId())
-                        .name(entity.getPensumId().getName())
-                        .description(entity.getPensumId().getDescription())
-                        .build())
-                .subjectId(SubjectResponse.builder()
-                        .id(entity.getSubjectId().getId())
-                        .name(entity.getSubjectId().getName())
-                        .credits(entity.getSubjectId().getCredits())
-                        .build())
-                .message("Asociación creada con éxito")
-                .build();
-    }
-
     @Override
     public PensumSubjectResponse update(Long id, PensumSubjectRequest request) {
-        Optional<PensumSubjectEntity> entityOpt = pensumSubjectRepository.findById(id);
-        if (entityOpt.isEmpty()) {
-            return PensumSubjectResponse.builder()
-                    .message("Relation not found")
-                    .build();
-        }
-
-        PensumSubjectEntity entity = entityOpt.get();
+        PensumSubjectEntity entity = pensumSubjectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Relation not found"));
 
         if (request.getPensumId() != null) {
-            Optional<PensumEntity> pensumOpt = pensumRepository.findById(request.getPensumId());
-            if (pensumOpt.isEmpty()) {
-                return PensumSubjectResponse.builder()
-                        .message("Pensum not found")
-                        .build();
-            }
-            entity.setPensumId(pensumOpt.get());
+            PensumEntity pensum = pensumRepository.findById(request.getPensumId())
+                    .orElseThrow(() -> new RuntimeException("Pensum not found"));
+            entity.setPensum(pensum);
         }
 
         if (request.getSubjectId() != null) {
-            Optional<SubjectEntity> subjectOpt = subjectRepository.findById(request.getSubjectId());
-            if (subjectOpt.isEmpty()) {
-                return PensumSubjectResponse.builder()
-                        .message("Subject not found")
-                        .build();
-            }
-            entity.setSubjectId(subjectOpt.get());
+            SubjectEntity subject = subjectRepository.findById(request.getSubjectId())
+                    .orElseThrow(() -> new RuntimeException("Subject not found"));
+            entity.setSubject(subject);
         }
 
         PensumSubjectEntity updated = pensumSubjectRepository.save(entity);
@@ -130,4 +92,19 @@ public class PensumSubjectServiceImpl implements PensumSubjectService {
         return response;
     }
 
+    private PensumSubjectResponse toResponse(PensumSubjectEntity entity) {
+        return PensumSubjectResponse.builder()
+                .id(entity.getId())
+                .pensumId(PensumResponse.builder()
+                        .id(entity.getPensum().getId())
+                        .name(entity.getPensum().getName())
+                        .description(entity.getPensum().getDescription())
+                        .build())
+                .subjectId(SubjectResponse.builder()
+                        .id(entity.getSubject().getId())
+                        .name(entity.getSubject().getName())
+                        .credits(entity.getSubject().getCredits())
+                        .build())
+                .build();
+    }
 }

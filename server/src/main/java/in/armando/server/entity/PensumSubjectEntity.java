@@ -11,7 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 @Entity
 @Table(name = "pensum_subject")
 @Data
@@ -25,9 +24,9 @@ public class PensumSubjectEntity {
 
     @ManyToOne
     @JoinColumn(name = "subjectId", referencedColumnName = "id")
-    private SubjectEntity subjectId;
+    private SubjectEntity subject;   
 
     @ManyToOne
     @JoinColumn(name = "pensumId", referencedColumnName = "id")
-    private PensumEntity pensumId;
+    private PensumEntity pensum;   
 }

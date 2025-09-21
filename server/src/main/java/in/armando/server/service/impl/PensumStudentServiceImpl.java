@@ -21,83 +21,93 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class PensumStudentServiceImpl implements PensumStudentService {
-    private final PensumStudentRepository repository;
-    private final StudentRepository studentRepository;
-    private final PensumRepository pensumRepository;
-    private final TuitionPaymentRepository tuitionPaymentRepository;
+        private final PensumStudentRepository repository;
+        private final StudentRepository studentRepository;
+        private final PensumRepository pensumRepository;
+        private final TuitionPaymentRepository tuitionPaymentRepository;
 
-    @Override
-    public PensumStudentResponse createPensumStudent(PensumStudentRequest request) {
-        StudentEntity student = studentRepository.findById(request.getStudentId())
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-        PensumEntity pensum = pensumRepository.findById(request.getPensumId())
-                .orElseThrow(() -> new RuntimeException("Pensum not found"));
-        TuitionPaymentEntity assignedBy = tuitionPaymentRepository.findById(request.getAssignedBy())
-                .orElseThrow(() -> new RuntimeException("TuitionPayment not found"));
+        @Override
+        public PensumStudentResponse createPensumStudent(PensumStudentRequest request) {
+                StudentEntity student = studentRepository.findById(request.getStudentId())
+                                .orElseThrow(() -> new RuntimeException("Student not found"));
+                PensumEntity pensum = pensumRepository.findById(request.getPensumId())
+                                .orElseThrow(() -> new RuntimeException("Pensum not found"));
+                TuitionPaymentEntity assignedBy = tuitionPaymentRepository.findById(request.getAssignedBy())
+                                .orElseThrow(() -> new RuntimeException("TuitionPayment not found"));
 
-        PensumStudentEntity entity = PensumStudentEntity.builder()
-                .student(student)
-                .pensum(pensum)
-                .assignedBy(assignedBy)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
+              
+                if (repository.existsByStudentAndPensum(student, pensum)) {
+                        throw new RuntimeException("El estudiante ya está asignado a este pensum");
+                }
 
-        entity = repository.save(entity);
+                PensumStudentEntity entity = PensumStudentEntity.builder()
+                                .student(student)
+                                .pensum(pensum)
+                                .assignedBy(assignedBy)
+                                .createdAt(LocalDateTime.now())
+                                .updatedAt(LocalDateTime.now())
+                                .build();
 
-        return mapToResponse(entity);
-    }
+                entity = repository.save(entity);
+                return mapToResponse(entity);
+        }
 
-    @Override
-    public PensumStudentResponse getPensumStudentById(Long id) {
-        PensumStudentEntity entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("PensumStudent not found"));
-        return mapToResponse(entity);
-    }
+        @Override
+        public PensumStudentResponse getPensumStudentById(Long id) {
+                PensumStudentEntity entity = repository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("PensumStudent not found"));
+                return mapToResponse(entity);
+        }
 
-    @Override
-    public void deletePensumStudent(Long id) {
-        repository.deleteById(id);
-    }
+        @Override
+        public void deletePensumStudent(Long id) {
+                if (!repository.existsById(id)) {
+                        throw new RuntimeException("PensumStudent not found");
+                }
+                repository.deleteById(id);
+        }
 
-    @Override
-    public PensumStudentResponse updatePensumStudent(Long id, PensumStudentRequest request) {
-        PensumStudentEntity entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("PensumStudent not found"));
+        @Override
+        public PensumStudentResponse updatePensumStudent(Long id, PensumStudentRequest request) {
+                PensumStudentEntity entity = repository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("PensumStudent not found"));
 
-        StudentEntity student = studentRepository.findById(request.getStudentId())
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-        PensumEntity pensum = pensumRepository.findById(request.getPensumId())
-                .orElseThrow(() -> new RuntimeException("Pensum not found"));
-        TuitionPaymentEntity assignedBy = tuitionPaymentRepository.findById(request.getAssignedBy())
-                .orElseThrow(() -> new RuntimeException("TuitionPayment not found"));
+                StudentEntity student = studentRepository.findById(request.getStudentId())
+                                .orElseThrow(() -> new RuntimeException("Student not found"));
+                PensumEntity pensum = pensumRepository.findById(request.getPensumId())
+                                .orElseThrow(() -> new RuntimeException("Pensum not found"));
+                TuitionPaymentEntity assignedBy = tuitionPaymentRepository.findById(request.getAssignedBy())
+                                .orElseThrow(() -> new RuntimeException("TuitionPayment not found"));
 
-        entity.setStudent(student);
-        entity.setPensum(pensum);
-        entity.setAssignedBy(assignedBy);
-        entity.setUpdatedAt(LocalDateTime.now());
+                if (repository.existsByStudentAndPensum(student, pensum)
+                                && !entity.getStudent().equals(student)) {
+                        throw new RuntimeException("El estudiante ya está asignado a este pensum");
+                }
 
-        repository.save(entity);
+                entity.setStudent(student);
+                entity.setPensum(pensum);
+                entity.setAssignedBy(assignedBy);
+                entity.setUpdatedAt(LocalDateTime.now());
 
-        return mapToResponse(entity);
-    }
+                repository.save(entity);
+                return mapToResponse(entity);
+        }
 
-    @Override
-    public List<PensumStudentResponse> getAll() {
-        return repository.findAll().stream()
-                .map(this::mapToResponse)
-                .toList();
-    }
+        @Override
+        public List<PensumStudentResponse> getAll() {
+                return repository.findAll().stream()
+                                .map(this::mapToResponse)
+                                .toList();
+        }
 
-    private PensumStudentResponse mapToResponse(PensumStudentEntity entity) {
-        return PensumStudentResponse.builder()
-                .id(entity.getId())
-                .pensumId(entity.getPensum().getId())
-                .studentId(entity.getStudent().getId())
-                .assignedBy(entity.getAssignedBy().getId())
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .build();
-    }
-
+        private PensumStudentResponse mapToResponse(PensumStudentEntity entity) {
+                return PensumStudentResponse.builder()
+                                .id(entity.getId())
+                                .pensumId(entity.getPensum().getId())
+                                .studentId(entity.getStudent().getId())
+                                .assignedBy(entity.getAssignedBy().getId())
+                                .createdAt(entity.getCreatedAt())
+                                .updatedAt(entity.getUpdatedAt())
+                                .build();
+        }
 }
