@@ -39,8 +39,27 @@ public class SemesterServiceImpl implements SemesterService {
 
     @Override
     public SemesterResponse createSemester(SemesterRequest semesterRequest) {
+        if (semesterRequest.getName() == null || semesterRequest.getName().isBlank()) {
+            throw new RuntimeException("El nombre del semestre no puede estar en blanco");
+        }
+        if (semesterRequest.getStartDate() == null) {
+            throw new RuntimeException("La fecha de inicio del semestre no puede estar en blanco");
+        }
+        if (semesterRequest.getEndDate() == null) {
+            throw new RuntimeException("La fecha de fin del semestre no puede estar en blanco");
+        }
+        semesterRepository.findByName(semesterRequest.getName())
+                .ifPresent(s -> {
+                    throw new RuntimeException("Ya existe un semestre con el mismo nombre");
+                });
+
+        if (semesterRepository.findByDateRange(semesterRequest.getStartDate(), semesterRequest.getEndDate())
+                .isPresent()) {
+            throw new RuntimeException("Ya existe un semestre con la misma fecha de inicio y fin");
+        }
+
         SemesterEntity semester = mapToEntity(semesterRequest);
-        SemesterEntity savedSemester = semesterRepository.save(semester);  
+        SemesterEntity savedSemester = semesterRepository.save(semester);
         SemesterResponse response = mapToResponse(savedSemester);
         response.setMessage("Semestre creado correctamente");
         return response;

@@ -32,7 +32,19 @@ public class ProfessorServiceImpl implements ProfessorService {
             throw new RuntimeException("El usuario no tiene rol TEACHERS");
         }
 
+        if (!user.isVerified()) {
+            throw new RuntimeException("El usuario no ha sido verificado");
+        }
+
+        if (professorRepository.findByUser(user).isPresent()) {
+            throw new RuntimeException("ya existe un profesor asignado a este usuario");
+        }
+
         String professorCode = "PROF-" + user.getId();
+
+        if (professorRepository.findByCode(professorCode).isPresent()) {
+            throw new RuntimeException("ya existe un profesor con el mismo código");
+        }
 
         ProfessorEntity professor = ProfessorEntity.builder()
                 .code(professorCode)

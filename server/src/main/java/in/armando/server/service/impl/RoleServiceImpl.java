@@ -16,55 +16,70 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RoleServiceImpl implements RoleService {
 
-    private final RoleRepository roleRepository;
+        private final RoleRepository roleRepository;
 
-    @Override
-    public RoleResponse createRole(RoleRequest request) {
-        roleRepository.findByName(request.getName())
-                .ifPresent(r -> { throw new RuntimeException("Role already exists"); });
+        @Override
+        public RoleResponse createRole(RoleRequest request) {
+                roleRepository.findByName(request.getName())
+                                .ifPresent(r -> {
+                                        throw new RuntimeException("Role already exists");
+                                });
 
-        RoleEntity role = RoleEntity.builder()
-                .name(request.getName())
-                .description(request.getDescription())
-                .build();
+                if (request.getDescription() == null || request.getDescription().isBlank()) {
+                        throw new RuntimeException("Description cannot be blank");
+                }
+                if (request.getName() == null || request.getName().isBlank()) {
+                        throw new RuntimeException("Name cannot be blank");
+                }
 
-        RoleEntity saved = roleRepository.save(role);
+                String normalizedName = request.getName().trim().toUpperCase();
+                roleRepository.findByName(normalizedName)
+                                .ifPresent(r -> {
+                                        throw new RuntimeException("Role already exists");
+                                });
 
-        return RoleResponse.builder()
-                .id(saved.getId())
-                .name(saved.getName())
-                .description(saved.getDescription())
-                .build();
-    }
+                RoleEntity role = RoleEntity.builder()
+                                .name(request.getName())
+                                .description(request.getDescription() != null ? request.getDescription().trim() : null)
+                                .build();
 
-    @Override
-    public RoleResponse getRoleById(Long id) {
-        RoleEntity role = roleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+                RoleEntity saved = roleRepository.save(role);
 
-        return RoleResponse.builder()
-                .id(role.getId())
-                .name(role.getName())
-                .description(role.getDescription())
-                .build();
-    }
-
-    @Override
-    public List<RoleResponse> getAllRoles() {
-        return roleRepository.findAll().stream()
-                .map(r -> RoleResponse.builder()
-                        .id(r.getId())
-                        .name(r.getName())
-                        .description(r.getDescription())
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public void deleteRole(Long id) {
-        if (!roleRepository.existsById(id)) {
-            throw new RuntimeException("Role not found");
+                return RoleResponse.builder()
+                                .id(saved.getId())
+                                .name(saved.getName())
+                                .description(saved.getDescription())
+                                .build();
         }
-        roleRepository.deleteById(id);
-    }
+
+        @Override
+        public RoleResponse getRoleById(Long id) {
+                RoleEntity role = roleRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Role not found"));
+
+                return RoleResponse.builder()
+                                .id(role.getId())
+                                .name(role.getName())
+                                .description(role.getDescription())
+                                .build();
+        }
+
+        @Override
+        public List<RoleResponse> getAllRoles() {
+                return roleRepository.findAll().stream()
+                                .map(r -> RoleResponse.builder()
+                                                .id(r.getId())
+                                                .name(r.getName())
+                                                .description(r.getDescription())
+                                                .build())
+                                .collect(Collectors.toList());
+        }
+
+        @Override
+        public void deleteRole(Long id) {
+                if (!roleRepository.existsById(id)) {
+                        throw new RuntimeException("Role not found");
+                }
+                roleRepository.deleteById(id);
+        }
 }

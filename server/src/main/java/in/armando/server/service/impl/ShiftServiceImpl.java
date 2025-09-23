@@ -41,6 +41,16 @@ public class ShiftServiceImpl implements ShiftService {
 
     @Override
     public ShiftResponse createShift(ShiftRequest request) {
+        if (request.getName() == null || request.getName().isBlank())
+            throw new RuntimeException("El nombre del shift no puede estar vacío");
+        if (request.getStartTime() == null || request.getEndTime() == null)
+            throw new RuntimeException("La hora de inicio y la hora de fin del shift no pueden estar vacíos");
+        if (!request.getStartTime().isBefore(request.getEndTime()))
+            throw new RuntimeException("La hora de inicio no puede ser mayor que la hora de fin");
+        if (shiftRepository.findByName(request.getName()).isPresent())
+            throw new RuntimeException("Ya existe un shift con el mismo nombre");
+        if (shiftRepository.findByDateRange(request.getStartTime(), request.getEndTime()).isPresent())
+            throw new RuntimeException("Ya existe un shift con la misma hora de inicio y hora de fin");
         ShiftEntity shift = mapToEntity(request);
         ShiftEntity savedShift = shiftRepository.save(shift);
         return mapToResponse(savedShift, "Shift creado correctamente");
