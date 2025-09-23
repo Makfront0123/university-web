@@ -52,10 +52,24 @@ public class StudentServiceImpl implements StudentsService {
         UserEntity user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
+        if (!"STUDENTS".equalsIgnoreCase(user.getRole().getName())) {
+            throw new RuntimeException("El usuario no tiene rol STUDENTS");
+        }
+
+        if (!user.isVerified()) {
+            throw new RuntimeException("El usuario no ha sido verificado");
+        }
+
+        if (studentRepository.findByUser(user).isPresent()) {
+            throw new RuntimeException("ya existe un estudiante asignado a este usuario");
+        }
         StudentEntity student = new StudentEntity();
         student.setUser(user);
 
         String code = "STU-" + System.currentTimeMillis();
+        if (studentRepository.findByCode(code).isPresent()) {
+            throw new RuntimeException("ya existe un estudiante con el mismo código");
+        }
         student.setCode(code);
 
         StudentEntity savedStudent = studentRepository.save(student);

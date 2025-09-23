@@ -10,4 +10,6 @@ public interface TuitionPaymentRepository extends JpaRepository<TuitionPaymentEn
     List<TuitionPaymentEntity> findBySemesterId(Long semesterId);
 
     List<TuitionPaymentEntity> findByStudentId(Long studentId);
+
+    boolean existsByStudentIdAndSemesterId(Long studentId, Long semesterId);
 }

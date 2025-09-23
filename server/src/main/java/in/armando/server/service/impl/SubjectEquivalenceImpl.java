@@ -28,6 +28,14 @@ public class SubjectEquivalenceImpl implements SubjectEquivalenceService {
                 .orElseThrow(() -> new RuntimeException(
                         "Equivalent subject not found with id " + request.getEquivalentSubjectId()));
 
+        if (subject.getId().equals(equivalentSubject.getId())) {
+            throw new RuntimeException("Subject and equivalent subject cannot be the same");
+        }
+
+        if (subjectEquivalenceRepository.existsBySubjectAndEquivalentSubject(subject, equivalentSubject)) {
+            throw new RuntimeException("Equivalence already exists");
+        }
+
         SubjectEquivalenceEntity entity = new SubjectEquivalenceEntity();
         entity.setSubject(subject);
         entity.setEquivalentSubject(equivalentSubject);

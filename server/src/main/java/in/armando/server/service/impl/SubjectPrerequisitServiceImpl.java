@@ -31,6 +31,14 @@ public class SubjectPrerequisitServiceImpl implements SubjectPrerequisitService 
                 .orElseThrow(() -> new RuntimeException(
                         "Required subject not found with id " + request.getRequiredSubjectId()));
 
+        if (subject.getId().equals(requiredSubject.getId())) {
+            throw new RuntimeException("Subject and required subject cannot be the same");
+        }
+
+        if (subjectPrerequisitRepository.existsBySubjectAndRequiredSubject(subject, requiredSubject)) {
+            throw new IllegalStateException("Prerequisite already exists for this subject");
+        }
+
         SubjectPrerequisisitEntity entity = new SubjectPrerequisisitEntity();
         entity.setSubject(subject);
         entity.setRequiredSubject(requiredSubject);

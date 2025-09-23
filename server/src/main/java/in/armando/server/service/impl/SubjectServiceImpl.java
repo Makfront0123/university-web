@@ -34,8 +34,20 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public SubjectResponse createSubject(SubjectRequest subject) {
-        SubjectEntity subjectEntity = mapToEntity(subject);
+    public SubjectResponse createSubject(SubjectRequest request) {
+        if (request.getCode() == null || request.getCode().isBlank()) {
+            throw new RuntimeException("Code cannot be null or blank");
+        }
+        if (subjectRepository.findByCode(request.getCode()) != null) {
+            throw new RuntimeException("Subject with code " + request.getCode() + " already exists");
+        }
+        if (request.getName() == null || request.getName().isBlank()) {
+            throw new RuntimeException("Name cannot be null or blank");
+        }
+        if (request.getCredits() == null || request.getCredits() <= 0) {
+            throw new RuntimeException("Credits cannot be null");
+        }
+        SubjectEntity subjectEntity = mapToEntity(request);
         SubjectEntity savedSubject = subjectRepository.save(subjectEntity);
         SubjectResponse response = mapToResponse(savedSubject);
         response.setMessage("Subject created successfully");
@@ -67,16 +79,26 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public SubjectResponse updateSubject(Long id, SubjectRequest subject) {
+    public SubjectResponse updateSubject(Long id, SubjectRequest request) {
         SubjectEntity subjectEntity = subjectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Subject not found with id " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Subject not found with id " + id));
 
-        if (subject.getName() != null)
-            subjectEntity.setName(subject.getName());
-        if (subject.getCode() != null)
-            subjectEntity.setCode(subject.getCode());
-        if (subject.getCredits() != null)
-            subjectEntity.setCredits(subject.getCredits());
+        if (request.getCode() != null && !request.getCode().isBlank()) {
+            SubjectEntity existing = subjectRepository.findByCode(request.getCode());
+            if (existing != null && !existing.getId().equals(id)) {
+                throw new IllegalStateException("Another subject with code " + request.getCode() + " already exists");
+            }
+            subjectEntity.setCode(request.getCode());
+        }
+        if (request.getName() != null && !request.getName().isBlank()) {
+            subjectEntity.setName(request.getName());
+        }
+        if (request.getCredits() != null) {
+            if (request.getCredits() <= 0) {
+                throw new IllegalArgumentException("Subject credits must be greater than 0");
+            }
+            subjectEntity.setCredits(request.getCredits());
+        }
 
         subjectRepository.save(subjectEntity);
         SubjectResponse response = mapToResponse(subjectEntity);

@@ -106,7 +106,19 @@ public class WailtlistServiceImpl implements WaitlistService {
 
     @Override
     public WaitlistResponse delete(Long id) {
-        waitlistRepository.deleteById(id);
-        return toResponse(waitlistRepository.findById(id).get());
+        WailtlistEntity entity = waitlistRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Waitlist Not Found"));
+
+        waitlistRepository.delete(entity);
+
+        return WaitlistResponse.builder()
+                .id(entity.getId())
+                .studentId(entity.getStudentId().getId())
+                .courseId(entity.getCourseId().getId())
+                .position(entity.getPosition())
+                .message("Eliminado con éxito")
+                .addedDate(entity.getAddedDate())
+                .build();
     }
+
 }

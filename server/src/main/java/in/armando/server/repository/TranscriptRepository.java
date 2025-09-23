@@ -15,4 +15,6 @@ public interface TranscriptRepository extends JpaRepository<TranscriptEntity, Lo
     Optional<TranscriptEntity> findBySemesterId(Long semesterId);
 
     Optional<TranscriptEntity> findByStudentAndSemester(StudentEntity student, SemesterEntity semester);
+
+    boolean existsByStudentIdAndSemesterId(Long studentId, Long semesterId);
 }

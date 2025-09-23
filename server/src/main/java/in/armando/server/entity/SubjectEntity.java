@@ -39,7 +39,7 @@ public class SubjectEntity {
     private Integer credits;
 
     @ManyToOne
-    @JoinColumn(name = "pensum_id", nullable = false)
+    @JoinColumn(name = "pensum_id", nullable = true)
     private PensumEntity pensum;
 
     @CreationTimestamp
