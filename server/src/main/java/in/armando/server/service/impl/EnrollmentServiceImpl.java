@@ -13,6 +13,7 @@ import in.armando.server.io.enrollment.EnrollmentResponse;
 import in.armando.server.repository.CourseRepository;
 import in.armando.server.repository.EnrollmentRepository;
 import in.armando.server.repository.StudentRepository;
+import in.armando.server.repository.TuitionPaymentRepository;
 import in.armando.server.service.EnrollmentService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final CourseRepository courseRepository;
     private final StudentRepository studentRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final TuitionPaymentRepository tuitionPaymentRepository;
 
     @Override
     public EnrollmentResponse getEnrollmentById(Long id) {
@@ -110,6 +112,13 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         StudentEntity student = studentRepository.findById(enrollment.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        boolean hasPayment = tuitionPaymentRepository.existsByStudentIdAndSemesterId(student.getId(),
+                course.getSemester().getId());
+        if (!hasPayment) {
+            throw new RuntimeException(
+                    "El Estudiante no ha pagado la matrícula del " + course.getSemester().getName());
+        }
 
         boolean alreadyEnrolled = enrollmentRepository.findByCourseIdAndStudentId(course.getId(), student.getId())
                 .stream()
