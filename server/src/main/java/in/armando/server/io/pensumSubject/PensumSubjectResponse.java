@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import in.armando.server.io.semester.SemesterResponse;
 @Builder
 @Data
 @AllArgsConstructor
@@ -15,5 +15,6 @@ public class PensumSubjectResponse {
     private Long id;
     private PensumResponse pensumId;
     private SubjectResponse subjectId;
+    private SemesterResponse semesterId;
     private String message;
 }

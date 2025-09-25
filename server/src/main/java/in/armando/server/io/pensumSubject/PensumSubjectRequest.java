@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class PensumSubjectRequest {
     private Long pensumId;
     private Long subjectId;
+    private Long semesterId;
 }

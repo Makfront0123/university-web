@@ -10,6 +10,7 @@ import in.armando.server.io.graduationRequeriment.GraduationRequerimentRequest;
 import in.armando.server.io.graduationRequeriment.GraduationRequerimentResponse;
 import in.armando.server.repository.GraduationRequerimentRepository;
 import in.armando.server.repository.PensumRepository;
+import in.armando.server.repository.PensumSubjectRepository;
 import in.armando.server.repository.SubjectRepository;
 import in.armando.server.service.GraduationRequerimentService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class GraduationRequerimentServiceImpl implements GraduationRequerimentSe
     private final GraduationRequerimentRepository repository;
     private final PensumRepository pensumRepository;
     private final SubjectRepository subjectRepository;
+    private final PensumSubjectRepository pensumSubjectRepository;
 
     @Override
     public GraduationRequerimentResponse create(GraduationRequerimentRequest request) {
@@ -30,7 +32,7 @@ public class GraduationRequerimentServiceImpl implements GraduationRequerimentSe
             throw new RuntimeException("Ya existe una relación con el nombre " + request.getName());
         }
 
-        Integer totalCredits = subjectRepository.sumCreditsByPensumId(pensum.getId());
+        Integer totalCredits = pensumSubjectRepository.sumCreditsByPensumId(pensum.getId());
         if (totalCredits == null) {
             totalCredits = 0;
         }
